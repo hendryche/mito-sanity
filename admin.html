@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>线粒体家庭联盟 - 内容管理后台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans SC', sans-serif; background: #f7fafc; color: #2D3748; line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #6B5CE7 0%, #00B4D8 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 1.3rem; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .header a { color: white; text-decoration: none; font-size: 0.9rem; }
+        .header a:hover { text-decoration: underline; }
+        .logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+        .container { display: flex; min-height: calc(100vh - 60px); }
+        .sidebar { width: 250px; background: white; border-right: 1px solid #e2e8f0; padding: 1.5rem 0; overflow-y: auto; }
+        .sidebar-section { margin-bottom: 1rem; }
+        .sidebar-title { padding: 0.5rem 1.5rem; font-size: 0.75rem; font-weight: 600; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; }
+        .sidebar-item { padding: 0.75rem 1.5rem; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; color: #4a5568; transition: all 0.2s; border-left: 3px solid transparent; }
+        .sidebar-item:hover { background: #f7fafc; }
+        .sidebar-item.active { background: #edf2f7; color: #6B5CE7; border-left-color: #6B5CE7; font-weight: 500; }
+        .sidebar-item svg { width: 18px; height: 18px; }
+        .sidebar-item .badge { background: #e53e3e; color: white; padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: auto; }
+        .main { flex: 1; padding: 2rem; overflow-y: auto; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
+        .panel-header h2 { font-size: 1.5rem; color: #2D3748; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #6B5CE7, #00B4D8); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(107,92,231,0.3); }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .btn-danger { background: #fed7d7; color: #c53030; }
+        .btn-danger:hover { background: #feb2b2; }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; }
+        .card-header h3 { font-size: 1.1rem; color: #2D3748; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #4a5568; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #6B5CE7; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .item-list { margin-top: 1.5rem; }
+        .item { display: flex; justify-content: space-between; align-items: flex-start; padding: 1rem; background: #f7fafc; border-radius: 8px; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; }
+        .item-info { flex: 1; }
+        .item-title { font-weight: 500; margin-bottom: 0.25rem; }
+        .item-subtitle { font-size: 0.85rem; color: #718096; }
+        .item-content-preview { font-size: 0.85rem; color: #4a5568; margin-top: 0.5rem; max-height: 60px; overflow: hidden; }
+        .item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content { background: white; border-radius: 16px; width: 90%; max-width: 900px; max-height: 85vh; overflow-y: auto; padding: 2rem; transform: scale(0.9); transition: transform 0.3s; }
+        .modal.active .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+        .modal-header h3 { font-size: 1.3rem; color: #6B5CE7; }
+        .modal-close { background: none; border: none; cursor: pointer; padding: 0.5rem; }
+        .modal-close svg { width: 24px; height: 24px; color: #718096; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .tab { padding: 0.6rem 1.2rem; background: #e2e8f0; border: none; border-radius: 20px; cursor: pointer; font-size: 0.9rem; color: #4a5568; transition: all 0.2s; }
+        .tab.active { background: #6B5CE7; color: white; }
+        .tab:hover:not(.active) { background: #cbd5e0; }
+        .empty-state { text-align: center; padding: 3rem; color: #718096; }
+        .rich-editor-toolbar { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.5rem; background: #f7fafc; border: 2px solid #e2e8f0; border-bottom: none; border-radius: 8px 8px 0 0; }
+        .rich-editor-toolbar button { width: 36px; height: 36px; border: 1px solid #e2e8f0; background: white; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.2s; }
+        .rich-editor-toolbar button:hover { background: #edf2f7; border-color: #6B5CE7; }
+        .rich-editor-toolbar .toolbar-divider { width: 1px; height: 36px; background: #e2e8f0; margin: 0 0.25rem; }
+        .rich-editor-content { min-height: 200px; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 0 0 8px 8px; font-size: 0.95rem; line-height: 1.6; }
+        .rich-editor-content:focus { outline: none; border-color: #6B5CE7; }
+        .rich-editor-content h1, .rich-editor-content h2, .rich-editor-content h3 { margin: 0.5rem 0; }
+        .rich-editor-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 0.5rem 0; }
+        .contact-tag-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; }
+        .contact-tag-item .tag-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #6B5CE7, #00B4D8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem; flex-shrink: 0; }
+        .contact-tag-item .tag-info { flex: 1; }
+        .contact-tag-item .tag-label { font-weight: 500; color: #2D3748; }
+        .contact-tag-item .tag-value { font-size: 0.85rem; color: #718096; }
+        .contact-tag-item .tag-actions { display: flex; gap: 0.25rem; }
+        .contact-tag-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem; margin-bottom: 1rem; }
+        .contact-type-btn { padding: 0.5rem; border: 2px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .contact-type-btn:hover { border-color: #6B5CE7; background: #f7fafc; }
+        .contact-type-btn.selected { border-color: #6B5CE7; background: #6B5CE7; color: white; }
+        .contact-type-btn .type-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
+        .contact-type-btn .type-label { font-size: 0.8rem; }
+        .content-blocks { border: 2px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .content-block { display: flex; align-items: stretch; border-bottom: 1px solid #e2e8f0; }
+        .content-block:last-child { border-bottom: none; }
+        .content-block .block-drag-handle { width: 40px; background: #f7fafc; display: flex; align-items: center; justify-content: center; cursor: grab; color: #718096; }
+        .content-block .block-content { flex: 1; padding: 1rem; }
+        .content-block .block-type-badge { display: inline-block; padding: 0.25rem 0.5rem; background: #6B5CE7; color: white; border-radius: 4px; font-size: 0.75rem; margin-bottom: 0.5rem; }
+        .content-block .block-actions { display: flex; flex-direction: column; padding: 0.5rem; gap: 0.25rem; background: #f7fafc; }
+        .content-block .block-actions button { width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center; border: none; border-radius: 4px; cursor: pointer; }
+        /* 留言统计样式 */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .stat-card .stat-value { font-size: 2.5rem; font-weight: 700; color: #6B5CE7; }
+        .stat-card .stat-label { font-size: 0.9rem; color: #718096; margin-top: 0.5rem; }
+        .stat-card .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .message-item { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #6B5CE7; }
+        .message-item.unread { border-left-color: #e53e3e; background: #fff5f5; }
+        .message-item .message-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .message-item .message-from { font-weight: 600; color: #2D3748; }
+        .message-item .message-date { font-size: 0.85rem; color: #718096; }
+        .message-item .message-type { display: inline-block; padding: 0.2rem 0.6rem; background: #6B5CE7; color: white; border-radius: 15px; font-size: 0.75rem; margin-left: 0.5rem; }
+        .message-item .message-contact { font-size: 0.85rem; color: #718096; margin-bottom: 0.5rem; }
+        .message-item .message-content { color: #4a5568; line-height: 1.7; }
+        .message-item .message-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; }
+        /* 留言表格样式 */
+        .message-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .message-table th { background: linear-gradient(135deg, #6B5CE7, #00B4D8); color: white; padding: 1rem; text-align: left; font-weight: 500; font-size: 0.9rem; }
+        .message-table td { padding: 0.875rem 1rem; border-bottom: 1px solid #e2e8f0; vertical-align: middle; font-size: 0.9rem; color: #4a5568; }
+        .message-table tr:last-child td { border-bottom: none; }
+        .message-table tr:hover { background: #f7fafc; }
+        .message-table tr.unread { background: #fff5f5; }
+        .message-table tr.unread:hover { background: #fed7d7; }
+        .message-table .type-tag { display: inline-block; padding: 0.2rem 0.6rem; background: #6B5CE7; color: white; border-radius: 15px; font-size: 0.75rem; }
+        .message-table .actions-cell { white-space: nowrap; }
+        .message-table .message-preview { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* 访问统计样式 */
+        .visit-chart { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .visit-chart h3 { margin-bottom: 1rem; color: #2D3748; }
+        .visit-list { max-height: 400px; overflow-y: auto; }
+        .visit-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid #e2e8f0; }
+        .visit-item:last-child { border-bottom: none; }
+        .visit-item .visit-page { font-weight: 500; color: #2D3748; }
+        .visit-item .visit-time { font-size: 0.85rem; color: #718096; }
+        .visit-item .visit-count { background: linear-gradient(135deg, #6B5CE7, #00B4D8); color: white; padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.85rem; }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-title, .sidebar-item span { display: none; }
+            .sidebar-item { justify-content: center; padding: 1rem; }
+            .main { padding: 1rem; }
+            .modal-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>内容管理后台</h1>
+        <div class="header-right">
+            <a href="index.html" target="_blank">查看网站</a>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">网站设置</div>
+                <div class="sidebar-item" data-panel="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span>账号设置</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">内容管理</div>
+                <div class="sidebar-item" data-panel="about">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    <span>关于我们</span>
+                </div>
+                <div class="sidebar-item" data-panel="diseases">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>疾病科普</span>
+                </div>
+                <div class="sidebar-item" data-panel="news">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>最新资讯</span>
+                </div>
+                <div class="sidebar-item" data-panel="orgs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span>全球组织</span>
+                </div>
+                <div class="sidebar-item" data-panel="contact">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>联系方式</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">数据管理</div>
+                <div class="sidebar-item" data-panel="messages">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>留言管理</span>
+                    <span class="badge" id="unreadBadge" style="display:none;">0</span>
+                </div>
+                <div class="sidebar-item" data-panel="analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>访问统计</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">页面设置</div>
+                <div class="sidebar-item" data-panel="footer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <span>页脚设置</span>
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <!-- 账号设置面板 -->
+            <div class="panel" id="panel-settings">
+                <div class="panel-header"><h2>账号设置</h2></div>
+                <div class="card">
+                    <h3 style="margin-bottom:1rem;">修改登录密码</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>新账号</label><input type="text" id="newUsername" placeholder="请输入新账号"></div>
+                        <div class="form-group"><label>新密码</label><input type="password" id="newPassword" placeholder="请输入新密码"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+                </div>
+            </div>
+            <!-- 关于我们面板 -->
+            <div class="panel" id="panel-about">
+                <div class="panel-header"><h2>关于我们</h2><button class="btn btn-primary" onclick="showAboutModal()">+ 添加子版块</button></div>
+                <div class="tabs" id="aboutSectionTabs"></div>
+                <div id="aboutSectionContent"></div>
+            </div>
+            <!-- 疾病科普面板 -->
+            <div class="panel" id="panel-diseases">
+                <div class="panel-header"><h2>疾病科普</h2><button class="btn btn-primary" onclick="showDiseaseCategoryModal()">+ 添加分类</button></div>
+                <div class="tabs" id="diseaseCategoryTabs"></div>
+                <div id="diseaseCategoryContent" style="margin-bottom:2rem;"></div>
+                <div class="card-header"><h3>疾病列表</h3><button class="btn btn-primary btn-sm" onclick="showDiseaseModal()">+ 添加疾病</button></div>
+                <div class="item-list" id="diseaseItems"></div>
+            </div>
+            <!-- 最新资讯面板 -->
+            <div class="panel" id="panel-news">
+                <div class="panel-header"><h2>最新资讯</h2><button class="btn btn-primary" onclick="showNewsCategoryModal()">+ 添加分类</button></div>
+                <div class="tabs" id="newsCategoryTabs"></div>
+                <div id="newsCategoryContent" style="margin-bottom:2rem;"></div>
+                <div class="card-header"><h3>资讯列表</h3><button class="btn btn-primary btn-sm" onclick="showNewsModal()">+ 添加资讯</button></div>
+                <div class="item-list" id="newsItems"></div>
+            </div>
+            <!-- 全球组织面板 -->
+            <div class="panel" id="panel-orgs">
+                <div class="panel-header"><h2>全球组织</h2><button class="btn btn-primary" onclick="showOrgModal()">+ 添加组织</button></div>
+                <div class="item-list" id="orgItems"></div>
+            </div>
+            <!-- 联系方式面板 -->
+            <div class="panel" id="panel-contact">
+                <div class="panel-header"><h2>联系方式</h2><button class="btn btn-primary" onclick="showContactTagModal()">+ 添加联系方式</button></div>
+                <div class="card">
+                    <h3 style="margin-bottom:1rem;">联系方式标签</h3>
+                    <div id="contactTagsList"></div>
+                </div>
+            </div>
+            <!-- 留言管理面板 -->
+            <div class="panel" id="panel-messages">
+                <div class="panel-header"><h2>留言管理</h2><button class="btn btn-secondary" onclick="markAllAsRead()">全部标为已读</button></div>
+                <div class="stats-grid" id="messageStats"></div>
+                <div class="visit-list" id="messageList"></div>
+            </div>
+            <!-- 访问统计面板 -->
+            <div class="panel" id="panel-analytics">
+                <div class="panel-header"><h2>访问统计</h2><button class="btn btn-secondary" onclick="clearStats()">清空统计</button></div>
+                <div class="stats-grid" id="visitStats"></div>
+                <div class="visit-chart">
+                    <h3>各板块访问量</h3>
+                    <div class="visit-list" id="visitList"></div>
+                </div>
+            </div>
+            <!-- 页脚设置面板 -->
+            <div class="panel" id="panel-footer">
+                <div class="panel-header"><h2>页脚设置</h2></div>
+                <div class="card">
+                    <h3 style="margin-bottom:1rem;">网站说明</h3>
+                    <div class="form-group"><label>联盟名称</label><input type="text" id="footerOrgName" placeholder="线粒体家庭联盟"></div>
+                    <div class="form-group"><label>网站说明</label><textarea id="footerDesc" placeholder="请输入网站说明文字"></textarea></div>
+                    <button class="btn btn-primary" onclick="saveFooterInfo()">保存</button>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:1rem;">社交媒体链接</h3>
+                    <div id="socialLinksEditor"></div>
+                    <button class="btn btn-primary" onclick="saveSocialLinks()">保存链接</button>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:1rem;">法律信息</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>隐私政策链接</label><input type="text" id="legalPrivacy" placeholder="隐私政策页面链接"></div>
+                        <div class="form-group"><label>使用条款链接</label><input type="text" id="legalTerms" placeholder="使用条款页面链接"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveLegal()">保存法律信息</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">编辑</h3>
+                <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" id="modalSaveBtn" onclick="saveModalData()">保存</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ========== API 配置 ==========
+        var API_BASE = '/api';
+        
+        async function apiGet(endpoint) {
+            try {
+                var res = await fetch(API_BASE + endpoint);
+                if (res.ok) return await res.json();
+            } catch(e) { console.warn('API请求失败:', endpoint, e.message); }
+            return null;
+        }
+        
+        async function apiPost(endpoint, data) {
+            try {
+                var res = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) return await res.json();
+            } catch(e) { console.warn('API请求失败:', endpoint, e.message); }
+            return {success: false};
+        }
+        
+        async function apiPut(endpoint, id, data) {
+            try {
+                var res = await fetch(API_BASE + endpoint + '/' + id, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) return await res.json();
+            } catch(e) { console.warn('API请求失败:', endpoint, e.message); }
+            return {success: false};
+        }
+        
+        async function apiDelete(endpoint, id) {
+            try {
+                var res = await fetch(API_BASE + endpoint + '/' + id, {method: 'DELETE'});
+                if (res.ok) return await res.json();
+            } catch(e) { console.warn('API删除失败:', endpoint, e.message); }
+            return {success: false};
+        }
+        
+        var currentAboutSection = '';
+        var currentDiseaseCategory = '';
+        var currentNewsCategory = '';
+        var modalSaveCallback = null;
+        
+        var contactTypes = [
+            { type: 'address', icon: '📍', label_zh: '地址', label_en: 'Address' },
+            { type: 'phone', icon: '📞', label_zh: '电话', label_en: 'Phone' },
+            { type: 'email', icon: '✉️', label_zh: '邮箱', label_en: 'Email' },
+            { type: 'website', icon: '🌐', label_zh: '网站', label_en: 'Website' },
+            { type: 'custom', icon: '📋', label_zh: '自定义', label_en: 'Custom' }
+        ];
+        
+        var socialMediaConfig = [
+            { key: 'wechat', icon: '💬', label_zh: '微信' },
+            { key: 'weibo', icon: '📱', label_zh: '微博' },
+            { key: 'email', icon: '✉️', label_zh: '邮箱' },
+            { key: 'youtube', icon: '▶️', label_zh: 'YouTube' },
+            { key: 'douyin', icon: '🎵', label_zh: '抖音' }
+        ];
+        
+        async function init() {
+            if (!sessionStorage.getItem('adminLoggedIn')) { window.location.href = 'admin-login.html'; return; }
+            
+            // 从API加载数据
+            var aboutSections = await apiGet('/about');
+            var diseaseCategories = await apiGet('/diseases/categories');
+            var diseaseItems = await apiGet('/diseases/items');
+            var newsCategories = await apiGet('/news/categories');
+            var newsItems = await apiGet('/news/items');
+            var orgItems = await apiGet('/orgs');
+            var contacts = await apiGet('/contacts');
+            var stats = await apiGet('/stats');
+            
+            // 保存到localStorage作为备份
+            if (aboutSections) localStorage.setItem('aboutSections', JSON.stringify(aboutSections));
+            if (diseaseCategories) localStorage.setItem('diseaseCategories', JSON.stringify(diseaseCategories));
+            if (diseaseItems) localStorage.setItem('diseaseItems', JSON.stringify(diseaseItems));
+            if (newsCategories) localStorage.setItem('newsCategories', JSON.stringify(newsCategories));
+            if (newsItems) localStorage.setItem('newsItems', JSON.stringify(newsItems));
+            if (orgItems) localStorage.setItem('orgItems', JSON.stringify(orgItems));
+            if (contacts) localStorage.setItem('contacts', JSON.stringify(contacts));
+            
+            loadAboutSections();
+            loadDiseaseCategories();
+            loadNewsCategories();
+            loadDiseases();
+            loadNews();
+            loadOrgs();
+            loadContactTags();
+            loadFooterSettings();
+            loadMessages();
+            loadVisitStats();
+            setupSidebar();
+        }
+        
+        function initDefaultData() {
+            if (!localStorage.getItem('aboutSections')) {
+                localStorage.setItem('aboutSections', JSON.stringify([
+                    {id:'who',name_zh:'我们是谁',name_en:'Who We Are',blocks:[{type:'text',content_zh:'<h3>线粒体家庭联盟</h3><p>线粒体家庭联盟是一个充满希望与温暖的公益组织。</p>',content_en:'<h3>Mitochondrial Disease Family Alliance</h3><p>We are a warm and hopeful public welfare organization.</p>'}]},
+                    {id:'history',name_zh:'我们的历史',name_en:'Our History',blocks:[{type:'text',content_zh:'<h3>我们的历史</h3><p>线粒体家庭联盟由一群关注线粒体疾病的医生、研究人员和患者家属共同发起成立。</p>',content_en:'<h3>Our History</h3><p>The alliance was founded by doctors, researchers and patient families.</p>'}]}
+                ]));
+            }
+            if (!localStorage.getItem('diseaseCategories')) {
+                localStorage.setItem('diseaseCategories', JSON.stringify([
+                    {id:'mito',name_zh:'了解线粒体',name_en:'About Mitochondria'},
+                    {id:'intro',name_zh:'线粒体疾病介绍',name_en:'Mitochondrial Diseases'},
+                    {id:'resource',name_zh:'资源',name_en:'Resources'}
+                ]));
+            }
+            if (!localStorage.getItem('diseaseItems')) {
+                localStorage.setItem('diseaseItems', JSON.stringify([
+                    {id:1,title_zh:'Leigh综合征',title_en:'Leigh Syndrome',category:'intro',desc_zh:'一种严重的神经系统疾病，通常在婴儿期或幼儿期发病。',desc_en:'A severe neurological disorder.',tags_zh:['婴儿期'],tags_en:['Infancy'],content_zh:'<h4>疾病概述</h4><p>Leigh综合征是一种严重的神经系统遗传代谢疾病。</p>',content_en:'<h4>Overview</h4><p>Leigh syndrome is a severe neurological disorder.</p>'}
+                ]));
+            }
+            if (!localStorage.getItem('newsCategories')) {
+                localStorage.setItem('newsCategories', JSON.stringify([
+                    {id:'research',name_zh:'研究进展',name_en:'Research Progress'},
+                    {id:'story',name_zh:'患者故事',name_en:'Patient Stories'},
+                    {id:'event',name_zh:'会议活动',name_en:'Events'}
+                ]));
+            }
+            if (!localStorage.getItem('newsItems')) {
+                localStorage.setItem('newsItems', JSON.stringify([
+                    {id:1,title_zh:'基因编辑技术为线粒体疾病治疗带来新希望',title_en:'Gene Editing Brings Hope',category:'research',date:'2026-04-15',excerpt_zh:'科学家成功开发出新型基因编辑工具。',excerpt_en:'Scientists developed a new gene editing tool.',image:''}
+                ]));
+            }
+            if (!localStorage.getItem('orgItems')) {
+                localStorage.setItem('orgItems', JSON.stringify([
+                    {id:1,name:'United Mitochondrial Disease Foundation (UMDF)',country:'美国',region:'america',desc_zh:'美国最大的线粒体疾病患者倡导组织。',desc_en:'The largest mitochondrial disease patient advocacy organization in the US.',email:'info@umdf.org',website:'www.umdf.org',logo:''}
+                ]));
+            }
+            if (!localStorage.getItem('contactInfo')) {
+                localStorage.setItem('contactInfo', JSON.stringify({
+                    items:[
+                        {type:'address',label_zh:'地址',label_en:'Address',value:'上海市（具体地址待定）'},
+                        {type:'phone',label_zh:'电话',label_en:'Phone',value:'+86 21 5888 8888'},
+                        {type:'email',label_zh:'邮箱',label_en:'Email',value:'contact@mitochondrial.cn'}
+                    ]
+                }));
+            }
+            if (!localStorage.getItem('footerSettings')) {
+                localStorage.setItem('footerSettings', JSON.stringify({
+                    orgName:'线粒体家庭联盟',
+                    desc_zh:'线粒体家庭联盟致力于为线粒体罕见病患者、研究人员和家庭提供权威信息与全球资源连接平台。',
+                    social:{wechat:{url:'',qrCode:''},weibo:{url:'',qrCode:''},email:{url:'',qrCode:''},youtube:{url:'',qrCode:''},douyin:{url:'',qrCode:''}},
+                    legal:{privacy:'#',terms:'#',cookie:'#',beian:'#'},
+                    copyright:{year:'2026',org:'线粒体家庭联盟'}
+                }));
+            }
+            if (!localStorage.getItem('contacts')) localStorage.setItem('contacts', '[]');
+            if (!localStorage.getItem('visitStats')) localStorage.setItem('visitStats', JSON.stringify({}));
+        }
+        
+        function setupSidebar() {
+            document.querySelectorAll('.sidebar-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.sidebar-item').forEach(function(i){i.classList.remove('active');});
+                    this.classList.add('active');
+                    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+                    document.getElementById('panel-'+this.dataset.panel).classList.add('active');
+                    if (this.dataset.panel === 'messages') loadMessages();
+                    if (this.dataset.panel === 'analytics') loadVisitStats();
+                });
+            });
+            document.querySelector('.sidebar-item').click();
+        }
+        
+        function logout() { sessionStorage.removeItem('adminLoggedIn'); window.location.href = 'admin-login.html'; }
+        
+        // 富文本编辑器
+        function createRichEditor(containerId, content) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '<div class="rich-editor-toolbar">'+
+                '<button type="button" onclick="execCmd(\'bold\')" title="粗体"><b>B</b></button>'+
+                '<button type="button" onclick="execCmd(\'italic\')" title="斜体"><i>I</i></button>'+
+                '<button type="button" onclick="execCmd(\'underline\')" title="下划线"><u>U</u></button>'+
+                '<div class="toolbar-divider"></div>'+
+                '<button type="button" onclick="execCmd(\'formatBlock\',\'h2\')" title="标题">H2</button>'+
+                '<button type="button" onclick="execCmd(\'formatBlock\',\'h3\')" title="子标题">H3</button>'+
+                '<button type="button" onclick="execCmd(\'formatBlock\',\'p\')" title="段落">P</button>'+
+                '<div class="toolbar-divider"></div>'+
+                '<button type="button" onclick="insertLink()" title="插入链接">🔗</button>'+
+                '<button type="button" onclick="insertImage()" title="插入图片">🖼️</button>'+
+            '</div><div class="rich-editor-content" contenteditable="true" id="'+containerId+'_editor">'+(content||'')+'</div>';
+        }
+        
+        function execCmd(cmd, value) { document.execCommand(cmd, false, value||null); document.querySelector('.rich-editor-content:focus')||document.querySelector('.rich-editor-content').focus(); }
+        function insertLink() { var url = prompt('请输入链接地址:'); if (url) document.execCommand('createLink', false, url); }
+        function insertImage() { var url = prompt('请输入图片地址:'); if (url) document.execCommand('insertImage', false, url); }
+        function getRichEditorContent(containerId) { var editor = document.getElementById(containerId+'_editor'); return editor ? editor.innerHTML : ''; }
+        
+        // 关于我们
+        function loadAboutSections() {
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var tabsHtml = '';
+            sections.forEach(function(s) { tabsHtml += '<button class="tab'+(currentAboutSection===s.id?' active':'')+'" onclick="selectAboutSection(\''+s.id+'\')">'+s.name_zh+'</button>'; });
+            document.getElementById('aboutSectionTabs').innerHTML = tabsHtml;
+            renderAboutSection();
+        }
+        
+        function selectAboutSection(id) { currentAboutSection = id; loadAboutSections(); }
+        
+        function renderAboutSection() {
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var section = sections.find(function(s){return s.id===currentAboutSection;});
+            if (!section) return;
+            var blocksHtml = '';
+            if (section.blocks) {
+                section.blocks.forEach(function(block, index) {
+                    blocksHtml += '<div class="content-block">'+
+                        '<div class="block-drag-handle">⋮⋮</div>'+
+                        '<div class="block-content"><span class="block-type-badge">'+(block.type==='text'?'文本':'图片')+'</span>'+
+                        '<p style="color:#4a5568;font-size:0.9rem;">'+(block.type==='text'?block.content_zh.substring(0,100)+'...':'图片: '+block.url)+'</p></div>'+
+                        '<div class="block-actions">'+
+                        '<button class="btn-secondary" onclick="editAboutBlock('+index+')">✏️</button>'+
+                        '<button class="btn-danger" onclick="deleteAboutBlock('+index+')">🗑️</button></div></div>';
+                });
+            }
+            var html = '<div class="card"><div class="card-header"><h3>'+section.name_zh+'</h3><div>'+
+                '<button class="btn btn-secondary btn-sm" onclick="addAboutBlock(\'text\')">+ 文本</button>'+
+                '<button class="btn btn-secondary btn-sm" onclick="addAboutBlock(\'image\')">+ 图片</button>'+
+                '<button class="btn btn-danger btn-sm" onclick="deleteAboutSection()">删除</button></div></div>';
+            html += '<div class="form-group"><label>名称（中文）</label><input type="text" value="'+section.name_zh+'" onchange="updateAboutSectionName(\'zh\',this.value)"></div>';
+            html += '<div class="form-group"><label>名称（英文）</label><input type="text" value="'+section.name_en+'" onchange="updateAboutSectionName(\'en\',this.value)"></div>';
+            html += '<div class="form-group"><label>内容块</label><div class="content-blocks">'+(blocksHtml||'<p style="padding:1rem;color:#718096;text-align:center;">暂无内容块</p>')+'</div></div></div>';
+            document.getElementById('aboutSectionContent').innerHTML = html;
+        }
+        
+        async function updateAboutSectionName(lang, val) {
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var section = sections.find(function(s){return s.id===currentAboutSection;});
+            if (section) { if (lang==='zh') section.name_zh=val; else section.name_en=val; localStorage.setItem('aboutSections', JSON.stringify(sections)); await apiPost('/about', section); }
+        }
+        
+        async function addAboutBlock(type) {
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var section = sections.find(function(s){return s.id===currentAboutSection;});
+            if (!section) return;
+            if (!section.blocks) section.blocks = [];
+            if (type==='text') section.blocks.push({type:'text',content_zh:'<p>请在此输入文本内容...</p>',content_en:'<p>Enter text content here...</p>'});
+            else section.blocks.push({type:'image',url:''});
+            localStorage.setItem('aboutSections', JSON.stringify(sections));
+            await apiPost('/about', section);
+            renderAboutSection();
+        }
+        
+        function editAboutBlock(index) {
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var section = sections.find(function(s){return s.id===currentAboutSection;});
+            if (!section || !section.blocks || !section.blocks[index]) return;
+            var block = section.blocks[index];
+            document.getElementById('modalTitle').textContent = '编辑文本块';
+            document.getElementById('modalBody').innerHTML = '<div class="form-group"><label>内容（中文）</label><div id="blockEditorZh"></div></div><div class="form-group"><label>内容（英文）</label><div id="blockEditorEn"></div></div>';
+            modalSaveCallback = async function() {
+                block.content_zh = getRichEditorContent('blockEditorZh');
+                block.content_en = getRichEditorContent('blockEditorEn');
+                localStorage.setItem('aboutSections', JSON.stringify(sections));
+                await apiPost('/about', section);
+                renderAboutSection();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+            setTimeout(function() { createRichEditor('blockEditorZh', block.content_zh); createRichEditor('blockEditorEn', block.content_en); }, 100);
+        }
+        
+        function deleteAboutBlock(index) {
+            if (!confirm('确定删除此内容块吗？')) return;
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var section = sections.find(function(s){return s.id===currentAboutSection;});
+            if (!section || !section.blocks) return;
+            section.blocks.splice(index, 1);
+            localStorage.setItem('aboutSections', JSON.stringify(sections));
+            renderAboutSection();
+        }
+        
+        function showAboutModal() {
+            document.getElementById('modalTitle').textContent = '添加子版块';
+            document.getElementById('modalBody').innerHTML = '<div class="form-group"><label>名称（中文）</label><input type="text" id="aboutNameZh" placeholder="如：我们的使命"></div><div class="form-group"><label>名称（英文）</label><input type="text" id="aboutNameEn" placeholder="如：Our Mission"></div>';
+            modalSaveCallback = async function() {
+                var nameZh = document.getElementById('aboutNameZh').value;
+                if (!nameZh) {alert('请输入中文名称');return;}
+                var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+                var newSection = {id:'section_'+Date.now(),name_zh:nameZh,name_en:document.getElementById('aboutNameEn').value||nameZh,blocks:[]};
+                sections.push(newSection);
+                localStorage.setItem('aboutSections', JSON.stringify(sections));
+                await apiPost('/about', newSection);
+                currentAboutSection = sections[sections.length-1].id;
+                loadAboutSections();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function deleteAboutSection() {
+            if (!confirm('确定删除此子版块吗？')) return;
+            var sections = JSON.parse(localStorage.getItem('aboutSections')||'[]');
+            var deletedSection = sections.find(function(s){return s.id===currentAboutSection;});
+            sections = sections.filter(function(s){return s.id!==currentAboutSection;});
+            localStorage.setItem('aboutSections', JSON.stringify(sections));
+            apiDelete('/about', currentAboutSection);
+            currentAboutSection = sections.length>0 ? sections[0].id : '';
+            loadAboutSections();
+        }
+        
+        // 疾病科普
+        function loadDiseaseCategories() {
+            var cats = JSON.parse(localStorage.getItem('diseaseCategories')||'[]');
+            var tabsHtml = '';
+            cats.forEach(function(c) { tabsHtml += '<button class="tab'+(currentDiseaseCategory===c.id?' active':'')+'" onclick="selectDiseaseCategory(\''+c.id+'\')">'+c.name_zh+'</button>'; });
+            document.getElementById('diseaseCategoryTabs').innerHTML = tabsHtml;
+            renderDiseaseCategory();
+        }
+        
+        function selectDiseaseCategory(id) { currentDiseaseCategory = id; loadDiseaseCategories(); }
+        
+        function renderDiseaseCategory() {
+            var cats = JSON.parse(localStorage.getItem('diseaseCategories')||'[]');
+            var cat = cats.find(function(c){return c.id===currentDiseaseCategory;});
+            if (!cat) return;
+            var html = '<div class="card"><div class="card-header"><h3>'+cat.name_zh+'</h3><button class="btn btn-danger btn-sm" onclick="deleteDiseaseCategory()">删除分类</button></div></div>';
+            document.getElementById('diseaseCategoryContent').innerHTML = html;
+            loadDiseases();
+        }
+        
+        function showDiseaseCategoryModal() {
+            document.getElementById('modalTitle').textContent = '添加分类';
+            document.getElementById('modalBody').innerHTML = '<div class="form-group"><label>名称（中文）</label><input type="text" id="disCatNameZh" placeholder="如：研究前沿"></div><div class="form-group"><label>名称（英文）</label><input type="text" id="disCatNameEn" placeholder="如：Research Frontiers"></div>';
+            modalSaveCallback = async function() {
+                var nameZh = document.getElementById('disCatNameZh').value;
+                if (!nameZh) {alert('请输入名称');return;}
+                var cats = JSON.parse(localStorage.getItem('diseaseCategories')||'[]');
+                var newCat = {id:'cat_'+Date.now(),name_zh:nameZh,name_en:document.getElementById('disCatNameEn').value||nameZh};
+                cats.push(newCat);
+                localStorage.setItem('diseaseCategories', JSON.stringify(cats));
+                await apiPost('/diseases/categories', newCat);
+                currentDiseaseCategory = cats[cats.length-1].id;
+                loadDiseaseCategories();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function deleteDiseaseCategory() {
+            if (!confirm('确定删除此分类吗？')) return;
+            var cats = JSON.parse(localStorage.getItem('diseaseCategories')||'[]');
+            cats = cats.filter(function(c){return c.id!==currentDiseaseCategory;});
+            localStorage.setItem('diseaseCategories', JSON.stringify(cats));
+            apiDelete('/diseases/categories', currentDiseaseCategory);
+            currentDiseaseCategory = cats.length>0 ? cats[0].id : '';
+            loadDiseaseCategories();
+        }
+        
+        function loadDiseases() {
+            var items = JSON.parse(localStorage.getItem('diseaseItems')||'[]');
+            var filtered = currentDiseaseCategory ? items.filter(function(i){return i.category===currentDiseaseCategory;}) : items;
+            var html = '';
+            filtered.forEach(function(item) {
+                html += '<div class="item"><div class="item-info"><div class="item-title">'+item.title_zh+'</div><div class="item-subtitle">'+item.title_en+'</div><div class="item-content-preview">'+item.desc_zh+'</div></div><div class="item-actions"><button class="btn btn-secondary btn-sm" onclick="editDisease('+item.id+')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteDisease('+item.id+')">删除</button></div></div>';
+            });
+            document.getElementById('diseaseItems').innerHTML = html || '<p class="empty-state">暂无疾病条目</p>';
+        }
+        
+        function showDiseaseModal(id) {
+            var item = id ? JSON.parse(localStorage.getItem('diseaseItems')||'[]').find(function(i){return i.id===id}) : null;
+            var cats = JSON.parse(localStorage.getItem('diseaseCategories')||'[]');
+            var catOptions = cats.map(function(c){return '<option value="'+c.id+'"'+(item&&item.category===c.id?' selected':'')+'>'+c.name_zh+'</option>';}).join('');
+            document.getElementById('modalTitle').textContent = id?'编辑疾病':'添加疾病';
+            document.getElementById('modalBody').innerHTML = '<div class="form-row"><div class="form-group"><label>名称（中文）</label><input type="text" id="diseaseTitleZh" value="'+(item?item.title_zh:'')+'" placeholder="如：Leigh综合征"></div><div class="form-group"><label>名称（英文）</label><input type="text" id="diseaseTitleEn" value="'+(item?item.title_en:'')+'" placeholder="如：Leigh Syndrome"></div></div><div class="form-group"><label>所属分类</label><select id="diseaseCategory">'+catOptions+'</select></div><div class="form-group"><label>简介（中文）</label><textarea id="diseaseDescZh">'+(item?item.desc_zh:'')+'</textarea></div><div class="form-group"><label>简介（英文）</label><textarea id="diseaseDescEn">'+(item?item.desc_en:'')+'</textarea></div><div class="form-group"><label>详细内容（中文）</label><div id="diseaseContentEditorZh"></div></div><div class="form-group"><label>详细内容（英文）</label><div id="diseaseContentEditorEn"></div></div>';
+            modalSaveCallback = async function() {
+                var titleZh = document.getElementById('diseaseTitleZh').value;
+                if (!titleZh) {alert('请输入疾病名称');return;}
+                var items = JSON.parse(localStorage.getItem('diseaseItems')||'[]');
+                var newItem = {id:id||Date.now(),title_zh:titleZh,title_en:document.getElementById('diseaseTitleEn').value||titleZh,category:document.getElementById('diseaseCategory').value,desc_zh:document.getElementById('diseaseDescZh').value,desc_en:document.getElementById('diseaseDescEn').value,content_zh:getRichEditorContent('diseaseContentEditorZh'),content_en:getRichEditorContent('diseaseContentEditorEn'),tags_zh:[],tags_en:[]};
+                if (id) { var idx=items.findIndex(function(i){return i.id===id;}); if(idx>=0) items[idx]=newItem; await apiPut('/diseases/items', id, newItem); }
+                else { items.push(newItem); await apiPost('/diseases/items', newItem); }
+                localStorage.setItem('diseaseItems', JSON.stringify(items));
+                loadDiseases();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+            setTimeout(function() { createRichEditor('diseaseContentEditorZh', item?item.content_zh:''); createRichEditor('diseaseContentEditorEn', item?item.content_en:''); }, 100);
+        }
+        
+        function editDisease(id) { showDiseaseModal(id); }
+        function deleteDisease(id) { if (!confirm('确定删除吗？')) return; var items=JSON.parse(localStorage.getItem('diseaseItems')||'[]'); items=items.filter(function(i){return i.id!==id;}); localStorage.setItem('diseaseItems', JSON.stringify(items)); apiDelete('/diseases/items', id); loadDiseases(); }
+        
+        // 最新资讯
+        function loadNewsCategories() {
+            var cats = JSON.parse(localStorage.getItem('newsCategories')||'[]');
+            var tabsHtml = '';
+            cats.forEach(function(c) { tabsHtml += '<button class="tab'+(currentNewsCategory===c.id?' active':'')+'" onclick="selectNewsCategory(\''+c.id+'\')">'+c.name_zh+'</button>'; });
+            document.getElementById('newsCategoryTabs').innerHTML = tabsHtml;
+            renderNewsCategory();
+        }
+        
+        function selectNewsCategory(id) { currentNewsCategory = id; loadNewsCategories(); }
+        
+        function renderNewsCategory() {
+            var cats = JSON.parse(localStorage.getItem('newsCategories')||'[]');
+            var cat = cats.find(function(c){return c.id===currentNewsCategory;});
+            if (!cat) return;
+            document.getElementById('newsCategoryContent').innerHTML = '<div class="card"><div class="card-header"><h3>'+cat.name_zh+'</h3><button class="btn btn-danger btn-sm" onclick="deleteNewsCategory()">删除分类</button></div></div>';
+            loadNews();
+        }
+        
+        function showNewsCategoryModal() {
+            document.getElementById('modalTitle').textContent = '添加分类';
+            document.getElementById('modalBody').innerHTML = '<div class="form-group"><label>名称（中文）</label><input type="text" id="newsCatNameZh" placeholder="如：新药研发"></div><div class="form-group"><label>名称（英文）</label><input type="text" id="newsCatNameEn" placeholder="如：Drug Development"></div>';
+            modalSaveCallback = async function() {
+                var nameZh = document.getElementById('newsCatNameZh').value;
+                if (!nameZh) {alert('请输入名称');return;}
+                var cats = JSON.parse(localStorage.getItem('newsCategories')||'[]');
+                var newCat = {id:'ncat_'+Date.now(),name_zh:nameZh,name_en:document.getElementById('newsCatNameEn').value||nameZh};
+                cats.push(newCat);
+                localStorage.setItem('newsCategories', JSON.stringify(cats));
+                await apiPost('/news/categories', newCat);
+                currentNewsCategory = cats[cats.length-1].id;
+                loadNewsCategories();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function deleteNewsCategory() {
+            if (!confirm('确定删除此分类吗？')) return;
+            var cats = JSON.parse(localStorage.getItem('newsCategories')||'[]');
+            cats = cats.filter(function(c){return c.id!==currentNewsCategory;});
+            localStorage.setItem('newsCategories', JSON.stringify(cats));
+            apiDelete('/news/categories', currentNewsCategory);
+            currentNewsCategory = cats.length>0 ? cats[0].id : '';
+            loadNewsCategories();
+        }
+        
+        function loadNews() {
+            var items = JSON.parse(localStorage.getItem('newsItems')||'[]');
+            var filtered = currentNewsCategory ? items.filter(function(i){return i.category===currentNewsCategory;}) : items;
+            var html = '';
+            filtered.forEach(function(item) {
+                html += '<div class="item"><div class="item-info"><div class="item-title">'+item.title_zh+'</div><div class="item-subtitle">'+item.date+'</div><div class="item-content-preview">'+item.excerpt_zh+'</div></div><div class="item-actions"><button class="btn btn-secondary btn-sm" onclick="editNews('+item.id+')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteNews('+item.id+')">删除</button></div></div>';
+            });
+            document.getElementById('newsItems').innerHTML = html || '<p class="empty-state">暂无资讯</p>';
+        }
+        
+        function showNewsModal(id) {
+            var item = id ? JSON.parse(localStorage.getItem('newsItems')||'[]').find(function(i){return i.id===id}) : null;
+            var cats = JSON.parse(localStorage.getItem('newsCategories')||'[]');
+            var catOptions = cats.map(function(c){return '<option value="'+c.id+'"'+(item&&item.category===c.id?' selected':'')+'>'+c.name_zh+'</option>';}).join('');
+            document.getElementById('modalTitle').textContent = id?'编辑资讯':'添加资讯';
+            document.getElementById('modalBody').innerHTML = '<div class="form-row"><div class="form-group"><label>标题（中文）</label><input type="text" id="newsTitleZh" value="'+(item?item.title_zh:'')+'" placeholder="资讯标题"></div><div class="form-group"><label>标题（英文）</label><input type="text" id="newsTitleEn" value="'+(item?item.title_en:'')+'" placeholder="Title"></div></div><div class="form-row"><div class="form-group"><label>分类</label><select id="newsCategory">'+catOptions+'</select></div><div class="form-group"><label>日期</label><input type="date" id="newsDate" value="'+(item?item.date:new Date().toISOString().split('T')[0])+'"></div></div><div class="form-group"><label>摘要（中文）</label><textarea id="newsExcerptZh">'+(item?item.excerpt_zh:'')+'</textarea></div><div class="form-group"><label>摘要（英文）</label><textarea id="newsExcerptEn">'+(item?item.excerpt_en:'')+'</textarea></div><div class="form-group"><label>正文内容（中文，支持富文本）</label><div id="newsContentEditorZh"></div></div><div class="form-group"><label>正文内容（英文，支持富文本）</label><div id="newsContentEditorEn"></div></div><div class="form-group"><label>图片URL</label><input type="text" id="newsImage" value="'+(item?item.image:'')+'" placeholder="输入图片URL"></div><div class="form-group"><label>外部链接</label><input type="text" id="newsLink" value="'+(item?item.link:'')+'" placeholder="输入跳转链接或留空"></div>';
+            modalSaveCallback = async function() {
+                var titleZh = document.getElementById('newsTitleZh').value;
+                if (!titleZh) {alert('请输入标题');return;}
+                var items = JSON.parse(localStorage.getItem('newsItems')||'[]');
+                var newItem = {id:id||Date.now(),title_zh:titleZh,title_en:document.getElementById('newsTitleEn').value||titleZh,category:document.getElementById('newsCategory').value,date:document.getElementById('newsDate').value,excerpt_zh:document.getElementById('newsExcerptZh').value,excerpt_en:document.getElementById('newsExcerptEn').value,content_zh:getRichEditorContent('newsContentEditorZh'),content_en:getRichEditorContent('newsContentEditorEn'),image:document.getElementById('newsImage').value,link:document.getElementById('newsLink').value};
+                if (id) { var idx=items.findIndex(function(i){return i.id===id;}); if(idx>=0) items[idx]=newItem; await apiPut('/news/items', id, newItem); }
+                else { items.unshift(newItem); await apiPost('/news/items', newItem); }
+                localStorage.setItem('newsItems', JSON.stringify(items));
+                loadNews();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+            setTimeout(function() { createRichEditor('newsContentEditorZh', item?item.content_zh:''); createRichEditor('newsContentEditorEn', item?item.content_en:''); }, 100);
+        }
+        
+        function editNews(id) { showNewsModal(id); }
+        function deleteNews(id) { if (!confirm('确定删除吗？')) return; var items=JSON.parse(localStorage.getItem('newsItems')||'[]'); items=items.filter(function(i){return i.id!==id;}); localStorage.setItem('newsItems', JSON.stringify(items)); apiDelete('/news/items', id); loadNews(); }
+        
+        // 全球组织
+        function loadOrgs() {
+            var items = JSON.parse(localStorage.getItem('orgItems')||'[]');
+            var html = '';
+            items.forEach(function(item) {
+                html += '<div class="item"><div class="item-info"><div class="item-title">'+item.name+'</div><div class="item-subtitle">'+item.country+'</div><div class="item-content-preview">'+item.desc_zh+'</div></div><div class="item-actions"><button class="btn btn-secondary btn-sm" onclick="editOrg('+item.id+')">编辑</button><button class="btn btn-danger btn-sm" onclick="deleteOrg('+item.id+')">删除</button></div></div>';
+            });
+            document.getElementById('orgItems').innerHTML = html || '<p class="empty-state">暂无组织</p>';
+        }
+        
+        function showOrgModal(id) {
+            var item = id ? JSON.parse(localStorage.getItem('orgItems')||'[]').find(function(i){return i.id===id}) : null;
+            document.getElementById('modalTitle').textContent = id?'编辑组织':'添加组织';
+            document.getElementById('modalBody').innerHTML = '<div class="form-group"><label>组织名称</label><input type="text" id="orgName" value="'+(item?item.name:'')+'" placeholder="如：UMDF"></div><div class="form-row"><div class="form-group"><label>国家</label><input type="text" id="orgCountry" value="'+(item?item.country:'')+'"></div><div class="form-group"><label>地区</label><select id="orgRegion"><option value="china"'+(item&&item.region==='china'?' selected':'')+'>中国</option><option value="asia"'+(item&&item.region==='asia'?' selected':'')+'>亚洲</option><option value="europe"'+(item&&item.region==='europe'?' selected':'')+'>欧洲</option><option value="america"'+(item&&item.region==='america'?' selected':'')+'>美洲</option></select></div></div><div class="form-group"><label>简介（中文）</label><textarea id="orgDescZh">'+(item?item.desc_zh:'')+'</textarea></div><div class="form-group"><label>简介（英文）</label><textarea id="orgDescEn">'+(item?item.desc_en:'')+'</textarea></div><div class="form-row"><div class="form-group"><label>邮箱</label><input type="email" id="orgEmail" value="'+(item?item.email:'')+'"></div><div class="form-group"><label>网站</label><input type="text" id="orgWebsite" value="'+(item?item.website:'')+'"></div></div>';
+            modalSaveCallback = async function() {
+                var name = document.getElementById('orgName').value;
+                if (!name) {alert('请输入组织名称');return;}
+                var items = JSON.parse(localStorage.getItem('orgItems')||'[]');
+                var newItem = {id:id||Date.now(),name:name,country:document.getElementById('orgCountry').value,region:document.getElementById('orgRegion').value,desc_zh:document.getElementById('orgDescZh').value,desc_en:document.getElementById('orgDescEn').value,email:document.getElementById('orgEmail').value,website:document.getElementById('orgWebsite').value,logo:''};
+                if (id) { var idx=items.findIndex(function(i){return i.id===id;}); if(idx>=0) items[idx]=newItem; await apiPut('/orgs', id, newItem); }
+                else { items.push(newItem); await apiPost('/orgs', newItem); }
+                localStorage.setItem('orgItems', JSON.stringify(items));
+                loadOrgs();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function editOrg(id) { showOrgModal(id); }
+        function deleteOrg(id) { if (!confirm('确定删除吗？')) return; var items=JSON.parse(localStorage.getItem('orgItems')||'[]'); items=items.filter(function(i){return i.id!==id;}); localStorage.setItem('orgItems', JSON.stringify(items)); apiDelete('/orgs', id); loadOrgs(); }
+        
+        // 联系方式
+        function loadContactTags() {
+            var info = JSON.parse(localStorage.getItem('contactInfo')||'{}');
+            var items = info.items || [];
+            var html = '';
+            items.forEach(function(item, index) {
+                var typeConfig = contactTypes.find(function(t){return t.type===item.type;})||contactTypes[4];
+                html += '<div class="contact-tag-item">'+
+                    '<div class="tag-icon">'+typeConfig.icon+'</div>'+
+                    '<div class="tag-info"><div class="tag-label">'+item.label_zh+' / '+item.label_en+'</div><div class="tag-value">'+item.value+'</div></div>'+
+                    '<div class="tag-actions"><button class="btn btn-secondary btn-sm" onclick="editContactTag('+index+')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteContactTag('+index+')">🗑️</button></div></div>';
+            });
+            document.getElementById('contactTagsList').innerHTML = html || '<p class="empty-state">暂无联系方式</p>';
+        }
+        
+        function showContactTagModal(index) {
+            var info = JSON.parse(localStorage.getItem('contactInfo')||'{}');
+            var items = info.items || [];
+            var item = index !== undefined ? items[index] : null;
+            var typeOptions = contactTypes.map(function(t) {
+                return '<div class="contact-type-btn'+(item&&item.type===t.type?' selected':'')+'" data-type="'+t.type+'" onclick="selectContactType(this)">'+
+                    '<div class="type-icon">'+t.icon+'</div><div class="type-label">'+t.label_zh+'</div></div>';
+            }).join('');
+            document.getElementById('modalTitle').textContent = item?'编辑联系方式':'添加联系方式';
+            document.getElementById('modalBody').innerHTML = '<div class="form-group"><label>类型</label><div class="contact-tag-types">'+typeOptions+'</div></div>'+
+                '<div class="form-group"><label>标签（中文）</label><input type="text" id="contactLabelZh" value="'+(item?item.label_zh:'')+'"></div>'+
+                '<div class="form-group"><label>标签（英文）</label><input type="text" id="contactLabelEn" value="'+(item?item.label_en:'')+'"></div>'+
+                '<div class="form-group"><label>联系方式</label><input type="text" id="contactValue" value="'+(item?item.value:'')+'"></div>';
+            modalSaveCallback = async function() {
+                var labelZh = document.getElementById('contactLabelZh').value;
+                var value = document.getElementById('contactValue').value;
+                if (!labelZh || !value) {alert('请填写完整信息');return;}
+                var selectedType = document.querySelector('.contact-type-btn.selected');
+                var type = selectedType ? selectedType.dataset.type : 'custom';
+                var newItem = {type:type,label_zh:labelZh,label_en:document.getElementById('contactLabelEn').value||labelZh,value:value};
+                if (index !== undefined) items[index] = newItem;
+                else items.push(newItem);
+                info.items = items;
+                localStorage.setItem('contactInfo', JSON.stringify(info));
+                await apiPost('/contacts', newItem);
+                loadContactTags();
+                closeModal();
+            };
+            document.getElementById('modal').classList.add('active');
+        }
+        
+        function selectContactType(btn) {
+            document.querySelectorAll('.contact-type-btn').forEach(function(b){b.classList.remove('selected');});
+            btn.classList.add('selected');
+            var type = btn.dataset.type;
+            var typeConfig = contactTypes.find(function(t){return t.type===type;});
+            if (typeConfig && type !== 'custom') {
+                document.getElementById('contactLabelZh').value = typeConfig.label_zh;
+                document.getElementById('contactLabelEn').value = typeConfig.label_en;
+            }
+        }
+        
+        function editContactTag(index) { showContactTagModal(index); }
+        function deleteContactTag(index) {
+            if (!confirm('确定删除吗？')) return;
+            var info = JSON.parse(localStorage.getItem('contactInfo')||'{}');
+            var deleted = info.items[index];
+            info.items.splice(index, 1);
+            localStorage.setItem('contactInfo', JSON.stringify(info));
+            if (deleted) apiDelete('/contacts', deleted.id || index);
+            loadContactTags();
+        }
+        
+        // 留言管理
+        async function loadMessages() {
+            // 从 API 获取留言数据
+            var contacts = await apiGet('/contacts') || [];
+            var unreadCount = contacts.filter(function(c){return !c.is_read;}).length;
+            
+            // 更新未读标记
+            var badge = document.getElementById('unreadBadge');
+            if (unreadCount > 0) { badge.textContent = unreadCount; badge.style.display = 'inline'; }
+            else badge.style.display = 'none';
+            
+            // 统计
+            var statsHtml = '<div class="stat-card"><div class="stat-icon">📬</div><div class="stat-value">'+contacts.length+'</div><div class="stat-label">总留言数</div></div>'+
+                '<div class="stat-card"><div class="stat-icon">📩</div><div class="stat-value">'+unreadCount+'</div><div class="stat-label">未读留言</div></div>'+
+                '<div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value">'+(contacts.length-unreadCount)+'</div><div class="stat-label">已处理留言</div></div>';
+            document.getElementById('messageStats').innerHTML = statsHtml;
+            
+            // 留言列表 - 表格形式
+            var typeNames = {patient:'我是患者',family:'患者家属',volunteer:'志愿者申请',donation:'捐款咨询',medical:'医疗咨询',cooperation:'合作洽谈',other:'其他'};
+            var tableHtml = '<table class="message-table"><thead><tr><th>姓名</th><th>电子邮箱</th><th>联系电话</th><th>咨询类型</th><th>留言内容</th><th>日期</th><th>操作</th></tr></thead><tbody>';
+            contacts.slice().reverse().forEach(function(c) {
+                tableHtml += '<tr class="'+(c.is_read?'':'unread')+'">'+
+                    '<td><strong>'+c.name+'</strong></td>'+
+                    '<td><a href="mailto:'+c.email+'">'+c.email+'</a></td>'+
+                    '<td>'+(c.phone || '-')+'</td>'+
+                    '<td><span class="type-tag">'+(typeNames[c.type]||c.type)+'</span></td>'+
+                    '<td class="message-preview" title="'+c.message+'">'+c.message+'</td>'+
+                    '<td>'+c.date+'</td>'+
+                    '<td class="actions-cell">'+
+                    (c.is_read?'':'<button class="btn btn-secondary btn-sm" onclick="markAsRead('+c.timestamp+')">标为已读</button> ')+
+                    '<button class="btn btn-danger btn-sm" onclick="deleteMessage('+c.timestamp+')">删除</button></td></tr>';
+            });
+            tableHtml += '</tbody></table>';
+            document.getElementById('messageList').innerHTML = tableHtml || '<p class="empty-state">暂无留言</p>';
+        }
+        
+        function markAsRead(timestamp) {
+            apiPut('/contacts/read', timestamp, {read: true}).then(function() {
+                loadMessages();
+            });
+        }
+        
+        function markAllAsRead() {
+            apiPost('/contacts/read-all', {}).then(function() {
+                loadMessages();
+            });
+        }
+        
+        function deleteMessage(timestamp) {
+            if (!confirm('确定删除此留言吗？')) return;
+            apiDelete('/contacts', timestamp).then(function() {
+                loadMessages();
+            });
+        }
+        
+        // 访问统计
+        function loadVisitStats() {
+            apiGet('/stats').then(function(data) {
+                if (!data) { data = { visits: [], total: 0 }; }
+                
+                var total = data.total || 0;
+                var visits = data.visits || [];
+                
+                var statsHtml = '<div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-value">' + total + '</div><div class="stat-label">总访问量</div></div>';
+                document.getElementById('visitStats').innerHTML = statsHtml;
+                
+                var listHtml = '<div style="margin-bottom:1rem;"><button class="btn btn-danger btn-sm" onclick="deleteSelectedVisits()">删除选中</button> <button class="btn btn-secondary btn-sm" onclick="clearAllStats()" style="margin-left:0.5rem;">清空统计</button> <span id="selectedCount" style="margin-left:1rem;color:#718096;font-size:0.85rem;">已选 0 条</span></div>';
+                listHtml += '<div style="background:#f7fafc;border-radius:8px;overflow:hidden;"><table style="width:100%;border-collapse:collapse;"><thead style="background:#e2e8f0;"><tr><th style="padding:0.75rem;text-align:left;width:40px;"><input type="checkbox" id="selectAllVisits" onchange="toggleSelectAll()"></th><th style="padding:0.75rem;text-align:left;">IP</th><th style="padding:0.75rem;text-align:left;">访问时间</th><th style="padding:0.75rem;text-align:center;">操作</th></tr></thead><tbody>';
+                
+                if (visits.length === 0) {
+                    listHtml += '<tr><td colspan="4" style="padding:2rem;text-align:center;color:#718096;">暂无访问数据</td></tr>';
+                } else {
+                    visits.forEach(function(v) {
+                        var visitTime = v.visit_time ? new Date(v.visit_time).toLocaleString('zh-CN') : '未知时间';
+                        listHtml += '<tr style="border-bottom:1px solid #e2e8f0;">' +
+                            '<td style="padding:0.5rem;"><input type="checkbox" class="visit-checkbox" data-id="' + v.id + '"></td>' +
+                            '<td style="padding:0.5rem;">' + v.ip + '</td>' +
+                            '<td style="padding:0.5rem;font-size:0.85rem;color:#718096;">' + visitTime + '</td>' +
+                            '<td style="padding:0.5rem;text-align:center;"><button class="btn btn-danger btn-sm" onclick="deleteVisit(' + v.id + ')">删除</button></td></tr>';
+                    });
+                }
+                
+                listHtml += '</tbody></table></div>';
+                document.getElementById('visitList').innerHTML = listHtml;
+                
+                // 绑定选择事件
+                document.querySelectorAll('.visit-checkbox').forEach(function(cb) {
+                    cb.addEventListener('change', updateSelectedCount);
+                });
+            }).catch(function(err) {
+                console.error('加载访问统计失败:', err);
+                document.getElementById('visitStats').innerHTML = '<p style="color:#e53e3e;">加载失败</p>';
+                document.getElementById('visitList').innerHTML = '<p class="empty-state">暂无访问数据</p>';
+            });
+        }
+        
+        function toggleSelectAll() {
+            var checked = document.getElementById('selectAllVisits').checked;
+            document.querySelectorAll('.visit-checkbox').forEach(function(cb) { cb.checked = checked; });
+            updateSelectedCount();
+        }
+        
+        function updateSelectedCount() {
+            var count = document.querySelectorAll('.visit-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = '已选 ' + count + ' 条';
+        }
+        
+        function deleteVisit(id) {
+            if (!confirm('确定删除此访问记录吗？')) return;
+            apiDelete('/stats', id).then(function() {
+                loadVisitStats();
+            });
+        }
+        
+        function deleteSelectedVisits() {
+            var checked = document.querySelectorAll('.visit-checkbox:checked');
+            if (checked.length === 0) { alert('请先选择要删除的记录'); return; }
+            if (!confirm('确定删除选中的 ' + checked.length + ' 条记录吗？')) return;
+            var promises = [];
+            checked.forEach(function(cb) {
+                promises.push(apiDelete('/stats', cb.dataset.id));
+            });
+            Promise.all(promises).then(function() {
+                loadVisitStats();
+            });
+        }
+        
+        function clearAllStats() {
+            if (!confirm('确定清空所有访问统计吗？此操作不可恢复！')) return;
+            apiDelete('/stats', 'all').then(function() {
+                loadVisitStats();
+            });
+        }
+        
+        // 页脚设置
+        function loadFooterSettings() {
+            var settings = JSON.parse(localStorage.getItem('footerSettings')||'{}');
+            document.getElementById('footerOrgName').value = settings.orgName||'线粒体家庭联盟';
+            document.getElementById('footerDesc').value = settings.desc_zh||'';
+            document.getElementById('legalPrivacy').value = settings.legal?settings.legal.privacy:'#';
+            document.getElementById('legalTerms').value = settings.legal?settings.legal.terms:'#';
+            
+            var socialHtml = '';
+            socialMediaConfig.forEach(function(sm) {
+                var social = settings.social && settings.social[sm.key] ? settings.social[sm.key] : {url:'',qrCode:''};
+                socialHtml += '<div style="margin-bottom:1.5rem;padding:1rem;background:#f7fafc;border-radius:8px;">'+
+                    '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;"><span style="font-size:1.5rem;">'+sm.icon+'</span><strong>'+sm.label_zh+'</strong></div>'+
+                    '<div class="form-group"><label>链接地址</label><input type="text" id="socialUrl_'+sm.key+'" value="'+social.url+'" placeholder="输入链接"></div>'+
+                    '<div class="form-group"><label>二维码图片URL</label><input type="text" id="socialQr_'+sm.key+'" value="'+social.qrCode+'" placeholder="输入二维码图片URL"></div></div>';
+            });
+            document.getElementById('socialLinksEditor').innerHTML = socialHtml;
+        }
+        
+        async function saveFooterInfo() {
+            var settings = JSON.parse(localStorage.getItem('footerSettings')||'{}');
+            settings.orgName = document.getElementById('footerOrgName').value;
+            settings.desc_zh = document.getElementById('footerDesc').value;
+            settings.desc_en = document.getElementById('footerDesc').value;
+            localStorage.setItem('footerSettings', JSON.stringify(settings));
+            await apiPost('/settings', {key: 'footer', data: settings});
+            alert('网站说明已保存');
+        }
+        
+        async function saveSocialLinks() {
+            var settings = JSON.parse(localStorage.getItem('footerSettings')||'{}');
+            settings.social = {};
+            socialMediaConfig.forEach(function(sm) {
+                settings.social[sm.key] = {url:document.getElementById('socialUrl_'+sm.key).value,qrCode:document.getElementById('socialQr_'+sm.key).value};
+            });
+            localStorage.setItem('footerSettings', JSON.stringify(settings));
+            await apiPost('/settings', {key: 'social', data: settings.social});
+            alert('社交链接已保存');
+        }
+        
+        async function saveLegal() {
+            var settings = JSON.parse(localStorage.getItem('footerSettings')||'{}');
+            settings.legal = {privacy:document.getElementById('legalPrivacy').value,terms:document.getElementById('legalTerms').value,cookie:'#',beian:'#'};
+            localStorage.setItem('footerSettings', JSON.stringify(settings));
+            await apiPost('/settings', {key: 'legal', data: settings.legal});
+            alert('法律信息已保存');
+        }
+        
+        function saveSettings() {
+            var newUser = document.getElementById('newUsername').value;
+            var newPass = document.getElementById('newPassword').value;
+            if (!newUser || !newPass) {alert('请输入账号和密码');return;}
+            localStorage.setItem('siteSettings', JSON.stringify({adminUser:newUser,adminPass:newPass}));
+            alert('账号设置已保存，请使用新账号密码重新登录');
+            logout();
+        }
+        
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+        function saveModalData() { if (modalSaveCallback) modalSaveCallback(); }
+        document.getElementById('modal').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+        
+        init();
+    </script>
+</body>
+</html>

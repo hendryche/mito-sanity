@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>线粒体家庭联盟 | Mitochondrial Disease Family Alliance</title>
+    <script src="js/sanity-client.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6B5CE7;
+            --primary-light: #8B7CF7;
+            --secondary: #00B4D8;
+            --accent: #FF6B9D;
+            --background: #FAFBFF;
+            --surface: #FFFFFF;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --gradient-primary: linear-gradient(135deg, #6B5CE7 0%, #00B4D8 100%);
+            --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --shadow-sm: 0 2px 8px rgba(107, 92, 231, 0.1);
+            --shadow-md: 0 8px 24px rgba(107, 92, 231, 0.15);
+            --shadow-lg: 0 16px 48px rgba(107, 92, 231, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            transition: all 0.3s ease;
+        }
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .logo img { height: 65px; width: auto; image-rendering: -webkit-optimize-contrast; }
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+        .logo-text span { font-size: 0.75rem; font-weight: 400; color: var(--text-secondary); }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-lang-switch {
+            display: flex;
+            gap: 0.25rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-lang-btn {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-lang-btn.active { background: var(--primary); color: white; }
+        .nav-lang-btn:hover:not(.active) { background: rgba(107, 92, 231, 0.1); }
+        .mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--gradient-hero);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 900px;
+        }
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease forwards;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.4s forwards;
+            opacity: 0;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary { background: white; color: var(--primary); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .btn-secondary { background: transparent; color: white; border: 2px solid white; }
+        .btn-secondary:hover { background: white; color: var(--primary); }
+        section { padding: 5rem 2rem; }
+        .section-container { max-width: 1200px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        .about { background: var(--surface); }
+        .about-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .about-tab {
+            padding: 0.6rem 1.4rem;
+            background: var(--background);
+            border: none;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+        .about-tab.active { background: var(--primary); color: white; }
+        .about-tab:hover:not(.active) { background: rgba(107, 92, 231, 0.1); color: var(--primary); }
+        .about-content-wrap { max-width: 1000px; margin: 0 auto; }
+        .about-section-block { margin-bottom: 2rem; }
+        .about-section-image { width: 100%; border-radius: 16px; margin-bottom: 1.5rem; box-shadow: var(--shadow-md); }
+        .about-section-text { line-height: 1.9; font-size: 1.05rem; color: var(--text-secondary); }
+        .about-section-text h3 { font-size: 1.5rem; color: var(--primary); margin-bottom: 1rem; }
+        .about-section-text p { margin-bottom: 1rem; }
+        .about-section-text ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+        .about-section-text li { margin-bottom: 0.5rem; }
+        .diseases { background: var(--background); }
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .category-tab {
+            padding: 0.5rem 1.2rem;
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary);
+        }
+        .category-tab.active { background: var(--primary); color: white; }
+        .category-tab:hover:not(.active) { background: rgba(107, 92, 231, 0.1); }
+        .disease-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .disease-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .disease-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .disease-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .disease-card:hover::before { transform: scaleX(1); }
+        .disease-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, rgba(107, 92, 231, 0.1), rgba(0, 180, 216, 0.1));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .disease-icon svg { width: 30px; height: 30px; color: var(--primary); }
+        .disease-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text-primary); }
+        .disease-name-en { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+        .disease-desc { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; }
+        .disease-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+        .disease-tag { padding: 0.2rem 0.7rem; background: rgba(107, 92, 231, 0.1); color: var(--primary); border-radius: 15px; font-size: 0.75rem; }
+        .news { background: var(--surface); }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
+        .news-card {
+            background: var(--background);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .news-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .news-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .news-image img { width: 100%; height: 100%; object-fit: cover; }
+        .news-image svg { width: 55px; height: 55px; color: white; opacity: 0.8; }
+        .news-content { padding: 1.5rem; }
+        .news-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .news-date { font-size: 0.85rem; color: var(--text-secondary); }
+        .news-category { padding: 0.2rem 0.7rem; background: var(--primary); color: white; border-radius: 15px; font-size: 0.75rem; }
+        .news-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); line-height: 1.4; }
+        .news-excerpt { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; margin-bottom: 0.75rem; }
+        .news-link { color: var(--primary); font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; }
+        .news-link:hover { text-decoration: underline; }
+        .organizations { background: var(--background); }
+        .org-tabs { display: flex; justify-content: center; gap: 0.6rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+        .org-tab {
+            padding: 0.5rem 1.2rem;
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary);
+        }
+        .org-tab.active { background: var(--primary); color: white; }
+        .org-tab:hover:not(.active) { background: rgba(107, 92, 231, 0.1); }
+        .org-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
+        .org-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(107, 92, 231, 0.1);
+        }
+        .org-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .org-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+        .org-logo {
+            width: 65px;
+            height: 65px;
+            border-radius: 12px;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .org-logo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+        .org-logo svg { width: 30px; height: 30px; color: white; }
+        .org-info h4 { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.2rem; }
+        .org-country { font-size: 0.9rem; color: var(--secondary); font-weight: 500; }
+        .org-desc { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem; }
+        .org-contact { display: flex; flex-direction: column; gap: 0.4rem; }
+        .org-contact-item { display: flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .org-contact-item a { color: var(--primary); text-decoration: none; }
+        .org-contact-item a:hover { text-decoration: underline; }
+        .org-contact-item svg { width: 15px; height: 15px; color: var(--primary); flex-shrink: 0; }
+        .cta { background: var(--gradient-hero); color: white; text-align: center; }
+        .cta-content h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); margin-bottom: 0.75rem; }
+        .cta-content p { font-size: 1.05rem; margin-bottom: 1.5rem; opacity: 0.95; line-height: 1.8; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .contact { background: var(--surface); }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+        .contact-form { background: var(--background); padding: 2rem; border-radius: 16px; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.4rem; color: var(--text-primary); font-size: 0.95rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.85rem;
+            border: 2px solid transparent;
+            background: var(--surface);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-hint { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; font-style: italic; }
+        .form-submit {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .form-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+        .contact-info-item { display: flex; gap: 1rem; }
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(107, 92, 231, 0.1), rgba(0, 180, 216, 0.1));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .contact-icon svg { width: 22px; height: 22px; color: var(--primary); }
+        .contact-info-item h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+        .contact-info-item p { color: var(--text-secondary); font-size: 0.95rem; }
+        .footer { background: var(--text-primary); color: white; padding: 3.5rem 2rem 2rem; }
+        .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; }
+        .footer-brand { display: flex; flex-direction: column; gap: 0.75rem; }
+        .footer-logo { display: flex; align-items: center; gap: 0.75rem; }
+        .footer-logo img { height: 50px; width: auto; }
+        .footer-logo span { font-size: 1.2rem; font-weight: 700; }
+        .footer-desc { color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; line-height: 1.8; }
+        .footer-social { display: flex; gap: 0.75rem; margin-top: 0.75rem; }
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .footer-social a:hover { background: var(--primary); transform: translateY(-3px); }
+        .footer-social a svg { width: 18px; height: 18px; color: white; }
+        .footer-social a .qr-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+        .footer-social a .qr-tooltip img {
+            width: 100px;
+            height: 100px;
+            display: block;
+        }
+        .footer-social a:hover .qr-tooltip { display: block; }
+        .footer-social a:hover .qr-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: white;
+        }
+        .footer-column h4 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+        .footer-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.3s ease; }
+        .footer-links a:hover { color: var(--primary-light); }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2.5rem auto 0;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+        .footer-bottom a { color: rgba(255, 255, 255, 0.7); text-decoration: none; margin: 0 0.5rem; }
+        .footer-bottom a:hover { color: var(--primary-light); text-decoration: underline; }
+        .footer-stats {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 0;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .footer-stats .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .footer-stats .stat-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: rgba(255, 255, 255, 0.5);
+        }
+        .footer-stats .stat-value {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--surface);
+            border-radius: 20px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content { transform: scale(1); }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .modal-header h3 { font-size: 1.4rem; color: var(--primary); }
+        .modal-close { background: none; border: none; cursor: pointer; padding: 0.5rem; }
+        .modal-close svg { width: 24px; height: 24px; color: var(--text-secondary); }
+        .modal-body h4 { color: var(--primary); margin: 1.5rem 0 0.75rem; font-size: 1.2rem; }
+        .modal-body p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 0.75rem; }
+        .modal-body ul { padding-left: 1.5rem; color: var(--text-secondary); }
+        .modal-body li { margin-bottom: 0.5rem; }
+        .modal-body img { max-width: 100%; border-radius: 12px; margin: 1rem 0; }
+        .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--surface);
+            z-index: 999;
+            padding: 5rem 2rem 2rem;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.active { transform: translateX(0); }
+        .mobile-menu-links { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
+        .mobile-menu-links a { font-size: 1.2rem; font-weight: 500; color: var(--text-primary); text-decoration: none; }
+        @media (max-width: 1024px) {
+            .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .mobile-menu { display: block; }
+            .stat-grid { grid-template-columns: 1fr; }
+            .news-grid, .org-grid, .disease-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .logo img { height: 55px; }
+            .logo-text { display: none; }
+            section { padding: 4rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <img src="imgs/logo.jpg" alt="Mitochondrial Disease Family Alliance" onerror="this.style.display='none'">
+                <div class="logo-text">
+                    <span data-zh="线粒体家庭联盟" data-en="Mitochondrial Disease Family Alliance">线粒体家庭联盟</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" data-zh="首页" data-en="Home">首页</a></li>
+                <li><a href="#about" data-zh="关于我们" data-en="About Us">关于我们</a></li>
+                <li><a href="#diseases" data-zh="疾病科普" data-en="Disease Info">疾病科普</a></li>
+                <li><a href="#news" data-zh="最新资讯" data-en="News">最新资讯</a></li>
+                <li><a href="#organizations" data-zh="全球组织" data-en="Organizations">全球组织</a></li>
+                <li><a href="#contact" data-zh="联系我们" data-en="Contact">联系我们</a></li>
+                <li>
+                    <div class="nav-lang-switch">
+                        <button class="nav-lang-btn active" data-lang="zh">中文</button>
+                        <button class="nav-lang-btn" data-lang="en">EN</button>
+                    </div>
+                </li>
+            </ul>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-menu-links">
+            <li><a href="#home" data-zh="首页" data-en="Home">首页</a></li>
+            <li><a href="#about" data-zh="关于我们" data-en="About Us">关于我们</a></li>
+            <li><a href="#diseases" data-zh="疾病科普" data-en="Disease Info">疾病科普</a></li>
+            <li><a href="#news" data-zh="最新资讯" data-en="News">最新资讯</a></li>
+            <li><a href="#organizations" data-zh="全球组织" data-en="Organizations">全球组织</a></li>
+            <li><a href="#contact" data-zh="联系我们" data-en="Contact">联系我们</a></li>
+            <li>
+                <div class="nav-lang-switch">
+                    <button class="nav-lang-btn active" data-lang="zh">中文</button>
+                    <button class="nav-lang-btn" data-lang="en">EN</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title" data-zh="生命的能量，永不熄灭" data-en="The Energy of Life, Never Fades">生命的能量，永不熄灭</h1>
+            <p class="hero-subtitle" data-zh="为线粒体罕见病患者，家属和研究人员提供权威信息与全球资源连接平台" data-en="Connecting patients, families and researchers with global resources for mitochondrial diseases">为线粒体罕见病患者，家属和研究人员提供权威信息与全球资源连接平台</p>
+            <div class="hero-buttons">
+                <a href="#about" class="btn btn-primary" data-zh="了解更多" data-en="Learn More">了解更多</a>
+                <a href="#diseases" class="btn btn-secondary" data-zh="疾病科普" data-en="Disease Info">疾病科普</a>
+            </div>
+        </div>
+    </section>
+    <section class="about" id="about">
+        <div class="section-container">
+            <div class="section-header animate-on-scroll">
+                <h2 class="section-title" data-zh="关于我们" data-en="About Us">关于我们</h2>
+                <p class="section-subtitle" data-zh="了解线粒体家庭联盟的使命与愿景" data-en="Learn about our mission and vision">了解线粒体家庭联盟的使命与愿景</p>
+            </div>
+            <div class="about-tabs" id="aboutTabs"></div>
+            <div class="about-content-wrap" id="aboutContent"></div>
+        </div>
+    </section>
+    <section class="diseases" id="diseases">
+        <div class="section-container">
+            <div class="section-header animate-on-scroll">
+                <h2 class="section-title" data-zh="疾病科普" data-en="Disease Information">疾病科普</h2>
+                <p class="section-subtitle" data-zh="了解线粒体疾病的相关知识" data-en="Learn about mitochondrial diseases">了解线粒体疾病的相关知识</p>
+            </div>
+            <div class="category-tabs" id="diseaseCategoryTabs"></div>
+            <div class="disease-grid" id="diseaseGrid"></div>
+        </div>
+    </section>
+    <section class="news" id="news">
+        <div class="section-container">
+            <div class="section-header animate-on-scroll">
+                <h2 class="section-title" data-zh="最新资讯" data-en="Latest News">最新资讯</h2>
+                <p class="section-subtitle" data-zh="获取线粒体疾病领域的最新动态" data-en="Get the latest updates in mitochondrial disease research">获取线粒体疾病领域的最新动态</p>
+            </div>
+            <div class="category-tabs" id="newsCategoryTabs"></div>
+            <div class="news-grid" id="newsGrid"></div>
+        </div>
+    </section>
+    <section class="organizations" id="organizations">
+        <div class="section-container">
+            <div class="section-header animate-on-scroll">
+                <h2 class="section-title" data-zh="全球组织网络" data-en="Global Organization Network">全球组织网络</h2>
+                <p class="section-subtitle" data-zh="连接世界各地的线粒体疾病支持组织" data-en="Connect with mitochondrial disease support organizations worldwide">连接世界各地的线粒体疾病支持组织</p>
+            </div>
+            <div class="org-tabs" id="orgRegionTabs">
+                <button class="org-tab active" data-region="all" data-zh="全部" data-en="All">全部</button>
+                <button class="org-tab" data-region="china" data-zh="中国" data-en="China">中国</button>
+                <button class="org-tab" data-region="asia" data-zh="亚洲" data-en="Asia">亚洲</button>
+                <button class="org-tab" data-region="europe" data-zh="欧洲" data-en="Europe">欧洲</button>
+                <button class="org-tab" data-region="america" data-zh="美洲" data-en="Americas">美洲</button>
+            </div>
+            <div class="org-grid" id="orgGrid"></div>
+        </div>
+    </section>
+    <section class="cta">
+        <div class="section-container">
+            <div class="cta-content animate-on-scroll">
+                <h2 data-zh="与我们一起，点燃生命的能量" data-en="Join Us, Light Up the Energy of Life">与我们一起，点燃生命的能量</h2>
+                <p data-zh="无论是成为志愿者还是分享我们的故事，您的每一份支持都将为线粒体疾病患者带来希望" data-en="Whether you become a volunteer or share our story, your every support will bring hope to patients">无论是成为志愿者还是分享我们的故事，您的每一份支持都将为线粒体疾病患者带来希望</p>
+                <div class="cta-buttons">
+                    <a href="#contact" class="btn btn-primary" data-zh="成为志愿者" data-en="Become a Volunteer">成为志愿者</a>
+                    <a href="#contact" class="btn btn-secondary" data-zh="捐款支持" data-en="Donate Support">捐款支持</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="contact" id="contact">
+        <div class="section-container">
+            <div class="section-header animate-on-scroll">
+                <h2 class="section-title" data-zh="联系我们" data-en="Contact Us">联系我们</h2>
+                <p class="section-subtitle" data-zh="无论是咨询问题、加入我们线粒体联盟、还是合作建议，我们都期待与您建立联系" data-en="Whether you have questions, want to join our alliance, or have cooperation suggestions, we look forward to hearing from you">无论是咨询问题、加入我们线粒体联盟、还是合作建议，我们都期待与您建立联系</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-form animate-on-scroll">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name" data-zh="您的姓名" data-en="Your Name">您的姓名</label>
+                            <input type="text" id="name" name="name" placeholder="请输入您的姓名 / Please enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" data-zh="电子邮箱" data-en="Email">电子邮箱</label>
+                            <input type="email" id="email" name="email" placeholder="请输入您的邮箱 / Please enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" data-zh="联系电话" data-en="Phone">联系电话</label>
+                            <input type="tel" id="phone" name="phone" placeholder="可选 / Optional">
+                        </div>
+                        <div class="form-group">
+                            <label for="type" data-zh="咨询类型" data-en="Inquiry Type">咨询类型</label>
+                            <select id="type" name="type" required>
+                                <option value="">请选择 / Please select</option>
+                                <option value="patient" data-zh="我是患者" data-en="I am a Patient">我是患者</option>
+                                <option value="family" data-zh="我是患者家属" data-en="I am a Family Member">我是患者家属</option>
+                                <option value="volunteer" data-zh="志愿者申请" data-en="Volunteer Application">志愿者申请</option>
+                                <option value="donation" data-zh="捐款咨询" data-en="Donation Inquiry">捐款咨询</option>
+                                <option value="medical" data-zh="医疗咨询" data-en="Medical Consultation">医疗咨询</option>
+                                <option value="cooperation" data-zh="合作洽谈" data-en="Business Cooperation">合作洽谈</option>
+                                <option value="other" data-zh="其他" data-en="Other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message" data-zh="留言内容" data-en="Message">留言内容</label>
+                            <textarea id="message" name="message" placeholder="请输入您的留言内容... / Please enter your message..." required></textarea>
+                            <p class="form-hint" data-zh="我们会认真阅读您的留言，并及时回复" data-en="We will carefully read your message and respond promptly">我们会认真阅读您的留言，并及时回复</p>
+                        </div>
+                        <button type="submit" class="form-submit" data-zh="提交留言" data-en="Submit">提交留言</button>
+                    </form>
+                </div>
+                <div class="contact-info animate-on-scroll" id="contactInfo"></div>
+            </div>
+        </div>
+    </section>
+    <footer class="footer" id="footer"></footer>
+    <div class="modal" id="diseaseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" id="modalClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+    <script>
+        // ========== API 配置 ==========
+        var API_BASE = '/api';
+        
+        // API请求封装
+        async function apiGet(endpoint) {
+            try {
+                var res = await fetch(API_BASE + endpoint);
+                if (res.ok) return await res.json();
+            } catch(e) {
+                console.warn('API请求失败:', endpoint, e.message);
+            }
+            return null;
+        }
+        
+        async function apiPost(endpoint, data) {
+            try {
+                var res = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) return await res.json();
+            } catch(e) {
+                console.warn('API请求失败:', endpoint, e.message);
+            }
+            return {success: false};
+        }
+        
+        // 状态变量
+        var currentLang = 'zh';
+        var currentAboutSection = '';
+        var currentDiseaseCategory = '';
+        var currentNewsCategory = '';
+        var currentOrgRegion = 'all';
+        
+        // 数据缓存
+        var aboutSections = [];
+        var diseaseCategories = [];
+        var diseaseItems = [];
+        var newsCategories = [];
+        var newsItems = [];
+        var orgItems = [];
+        
+        // 初始化 - 从Sanity加载数据
+        async function initData() {
+            // 先尝试从Sanity加载数据
+            try {
+                const [
+                    sanityAbout,
+                    sanityDiseaseCats,
+                    sanityDiseaseItems,
+                    sanityNewsCats,
+                    sanityNewsItems,
+                    sanityOrgs
+                ] = await Promise.all([
+                    SanityData.getAboutSections(),
+                    SanityData.getDiseaseCategories(),
+                    SanityData.getDiseaseItems(),
+                    SanityData.getNewsCategories(),
+                    SanityData.getNewsItems(),
+                    SanityData.getOrganizations()
+                ]);
+                
+                // 如果Sanity有数据，使用Sanity数据
+                if (sanityAbout && sanityAbout.length > 0) {
+                    aboutSections = sanityAbout.map(s => ({
+                        id: s.id,
+                        name_zh: s.nameZh,
+                        name_en: s.nameEn,
+                        sort_order: s.sortOrder,
+                        image: s.image || '',
+                        blocks: [{
+                            type: 'text',
+                            content_zh: s.contentZh ? s.contentZh.map(b => b.children?.[0]?.text || '').join('') : '',
+                            content_en: s.contentEn ? s.contentEn.map(b => b.children?.[0]?.text || '').join('') : ''
+                        }]
+                    }));
+                }
+                
+                if (sanityDiseaseCats && sanityDiseaseCats.length > 0) {
+                    diseaseCategories = sanityDiseaseCats.map(c => ({
+                        id: c.id,
+                        name_zh: c.nameZh,
+                        name_en: c.nameEn,
+                        sort_order: c.sortOrder
+                    }));
+                }
+                
+                if (sanityDiseaseItems && sanityDiseaseItems.length > 0) {
+                    diseaseItems = sanityDiseaseItems.map(i => ({
+                        id: 1,
+                        category: i.category,
+                        title_zh: i.titleZh,
+                        title_en: i.titleEn,
+                        desc_zh: i.descZh,
+                        desc_en: i.descEn,
+                        content_zh: i.contentZh,
+                        content_en: i.contentEn,
+                        tags_zh: i.tagsZh || [],
+                        tags_en: i.tagsEn || []
+                    }));
+                }
+                
+                if (sanityNewsCats && sanityNewsCats.length > 0) {
+                    newsCategories = sanityNewsCats.map(c => ({
+                        id: c.id,
+                        name_zh: c.nameZh,
+                        name_en: c.nameEn,
+                        sort_order: c.sortOrder
+                    }));
+                }
+                
+                if (sanityNewsItems && sanityNewsItems.length > 0) {
+                    newsItems = sanityNewsItems.map(n => ({
+                        id: 1,
+                        category: n.category,
+                        title_zh: n.titleZh,
+                        title_en: n.titleEn,
+                        excerpt_zh: n.excerptZh,
+                        excerpt_en: n.excerptEn,
+                        image: n.image,
+                        link: n.link,
+                        date: n.date
+                    }));
+                }
+                
+                if (sanityOrgs && sanityOrgs.length > 0) {
+                    orgItems = sanityOrgs.map(o => ({
+                        id: 1,
+                        name: o.name,
+                        country: o.country,
+                        region: o.region || 'all',
+                        desc_zh: o.descZh,
+                        desc_en: o.descEn,
+                        email: o.email,
+                        website: o.website,
+                        logo: o.logo
+                    }));
+                }
+            } catch(e) {
+                console.warn('Sanity加载失败，使用默认数据:', e.message);
+            }
+            
+            // 如果Sanity没有数据，使用默认数据
+            if (aboutSections.length === 0) aboutSections = getDefaultAbout();
+            if (diseaseCategories.length === 0) diseaseCategories = getDefaultDiseaseCategories();
+            if (newsCategories.length === 0) newsCategories = getDefaultNewsCategories();
+            if (diseaseItems.length === 0) diseaseItems = getDefaultDiseaseItems();
+            if (newsItems.length === 0) newsItems = getDefaultNewsItems();
+            if (orgItems.length === 0) orgItems = getDefaultOrgItems();
+            
+            if (!currentAboutSection) currentAboutSection = aboutSections[0]?.id || 'who';
+            if (!currentDiseaseCategory) currentDiseaseCategory = diseaseCategories[0]?.id || 'mito';
+            if (!currentNewsCategory) currentNewsCategory = newsCategories[0]?.id || 'research';
+            
+            // 初始化渲染
+            renderAbout();
+            renderDiseases();
+            renderNews();
+            renderOrgs();
+            renderContact();
+            renderFooter();
+            observeAnimations();
+        }
+        
+        function getDefaultAbout() {
+            return [{
+                id: 'who',
+                name_zh: '我们是谁',
+                name_en: 'Who We Are',
+                blocks: [{
+                    type: 'text',
+                    content_zh: '<h3>线粒体家庭联盟</h3><p>线粒体家庭联盟是一个充满希望与温暖的公益组织，为中国的线粒体罕见病患者、家属和研究人员提供一个咨询和联系的平台。</p><p>我们致力于线粒体罕见病的科普，定期发布线上线下的活动情况，以及最新研究药物的进展情况。</p>',
+                    content_en: '<h3>Mitochondrial Disease Family Alliance</h3><p>We are a warm and hopeful public welfare organization providing a platform for consultation and connection for patients, families and researchers.</p>'
+                }]
+            }];
+        }
+        
+        function getDefaultDiseaseCategories() {
+            return [
+                {id: 'mito', name_zh: '了解线粒体', name_en: 'About Mitochondria'},
+                {id: 'intro', name_zh: '线粒体疾病介绍', name_en: 'Mitochondrial Diseases'},
+                {id: 'resource', name_zh: '资源', name_en: 'Resources'},
+                {id: 'explore', name_zh: '探索', name_en: 'Explore'}
+            ];
+        }
+        
+        function getDefaultNewsCategories() {
+            return [
+                {id: 'research', name_zh: '研究进展', name_en: 'Research Progress'},
+                {id: 'story', name_zh: '患者故事', name_en: 'Patient Stories'},
+                {id: 'event', name_zh: '会议活动', name_en: 'Events'}
+            ];
+        }
+        
+        function getDefaultDiseaseItems() {
+            return [
+                {
+                    id: 1,
+                    category: 'intro',
+                    title_zh: 'Leigh综合征',
+                    title_en: 'Leigh Syndrome',
+                    desc_zh: '一种严重的神经系统疾病，通常在婴儿期或幼儿期发病。',
+                    desc_en: 'A severe neurological disorder that typically appears in infancy or early childhood.',
+                    content_zh: '<h4>疾病概述</h4><p>Leigh综合征是一种严重的神经系统遗传代谢疾病，主要影响大脑发育。</p><h4>症状</h4><ul><li>发育迟缓</li><li>肌张力低下</li><li>吞咽困难</li><li>呼吸问题</li></ul>',
+                    content_en: '<h4>Overview</h4><p>Leigh syndrome is a severe neurological disorder primarily affecting brain development.</p><h4>Symptoms</h4><ul><li>Developmental delay</li><li>Hypotonia</li><li>Difficulty swallowing</li><li>Breathing problems</li></ul>',
+                    tags_zh: ['婴儿期', '神经系统'],
+                    tags_en: ['Infancy', 'Neurological']
+                },
+                {
+                    id: 2,
+                    category: 'intro',
+                    title_zh: 'MELAS综合征',
+                    title_en: 'MELAS Syndrome',
+                    desc_zh: '线粒体脑肌病伴乳酸酸中毒及卒中样发作。',
+                    desc_en: 'Mitochondrial Encephalomyopathy, Lactic Acidosis, and Stroke-like episodes.',
+                    content_zh: '<h4>疾病概述</h4><p>MELAS是一种累及多系统的线粒体疾病。</p><h4>主要特征</h4><ul><li>卒中样发作</li><li>乳酸酸中毒</li><li>痴呆</li><li>癫痫</li></ul>',
+                    content_en: '<h4>Overview</h4><p>MELAS is a multisystem mitochondrial disorder.</p><h4>Main Features</h4><ul><li>Stroke-like episodes</li><li>Lactic acidosis</li><li>Dementia</li><li>Epilepsy</li></ul>',
+                    tags_zh: ['卒中', '脑病'],
+                    tags_en: ['Stroke', 'Encephalopathy']
+                },
+                {
+                    id: 3,
+                    category: 'mito',
+                    title_zh: '线粒体功能障碍',
+                    title_en: 'Mitochondrial Dysfunction',
+                    desc_zh: '线粒体是细胞的能量工厂，负责产生人体所需的大部分ATP。',
+                    desc_en: 'Mitochondria are the power plants of cells, responsible for producing most of the ATP our bodies need.',
+                    content_zh: '<h4>线粒体简介</h4><p>线粒体存在于几乎所有细胞中，负责将食物中的能量转化为细胞可以利用的形式。</p><h4>重要功能</h4><ul><li>能量生产</li><li>调节细胞代谢</li><li>细胞凋亡</li><li>钙离子储存</li></ul>',
+                    content_en: '<h4>Mitochondria Introduction</h4><p>Mitochondria exist in almost all cells and convert energy from food into a form cells can use.</p><h4>Important Functions</h4><ul><li>Energy production</li><li>Cellular metabolism regulation</li><li>Apoptosis</li><li>Calcium storage</li></ul>',
+                    tags_zh: ['基础知识', '细胞'],
+                    tags_en: ['Basics', 'Cellular']
+                }
+            ];
+        }
+        
+        function getDefaultNewsItems() {
+            return [
+                {
+                    id: 1,
+                    category: 'research',
+                    title_zh: '基因编辑技术为线粒体疾病治疗带来新希望',
+                    title_en: 'Gene Editing Brings Hope for Mitochondrial Disease Treatment',
+                    date: '2026-04-15',
+                    excerpt_zh: '科学家成功开发出新型基因编辑工具，为线粒体疾病的治疗开辟了新道路。',
+                    excerpt_en: 'Scientists have successfully developed a new gene editing tool, opening new roads for mitochondrial disease treatment.',
+                    image: '',
+                    link: ''
+                },
+                {
+                    id: 2,
+                    category: 'event',
+                    title_zh: '2026年国际线粒体疾病研讨会即将召开',
+                    title_en: '2026 International Mitochondrial Disease Conference',
+                    date: '2026-03-20',
+                    excerpt_zh: '本次研讨会将汇聚全球顶尖专家，共同探讨线粒体疾病的研究进展。',
+                    excerpt_en: 'This conference will bring together top experts worldwide to discuss mitochondrial disease research progress.',
+                    image: '',
+                    link: ''
+                },
+                {
+                    id: 3,
+                    category: 'story',
+                    title_zh: '患者故事 | 小明的康复之路',
+                    title_en: 'Patient Story | Xiaoming\'s Road to Recovery',
+                    date: '2026-02-10',
+                    excerpt_zh: '分享一位线粒体疾病患者的真实经历，讲述家庭的爱与坚持。',
+                    excerpt_en: 'Sharing the real experience of a mitochondrial disease patient, telling the story of family love and perseverance.',
+                    image: '',
+                    link: ''
+                }
+            ];
+        }
+        
+        function getDefaultOrgItems() {
+            return [
+                {
+                    id: 1,
+                    name: 'United Mitochondrial Disease Foundation (UMDF)',
+                    country: '美国',
+                    region: 'america',
+                    desc_zh: '美国最大的线粒体疾病患者倡导组织，致力于推动研究和支持患者家庭。',
+                    desc_en: 'The largest mitochondrial disease patient advocacy organization in the United States.',
+                    email: 'info@umdf.org',
+                    website: 'www.umdf.org',
+                    logo: ''
+                },
+                {
+                    id: 2,
+                    name: 'The Mitochondrial Medicine Society',
+                    country: '美国',
+                    region: 'america',
+                    desc_zh: '专注于线粒体医学的专业医学协会，推动临床和研究发展。',
+                    desc_en: 'A professional medical society dedicated to mitochondrial medicine.',
+                    email: 'info@mitochondrialmedicine.org',
+                    website: 'www.mitochondrialmedicine.org',
+                    logo: ''
+                },
+                {
+                    id: 3,
+                    name: 'Mitochondrial Europe Network',
+                    country: '欧洲',
+                    region: 'europe',
+                    desc_zh: '欧洲线粒体疾病患者和研究者网络。',
+                    desc_en: 'European network for mitochondrial disease patients and researchers.',
+                    email: 'contact@mitonet.eu',
+                    website: 'www.mitonet.eu',
+                    logo: ''
+                }
+            ];
+        }
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-zh]').forEach(function(el) {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            renderAbout();
+            renderDiseases();
+            renderNews();
+            renderOrgs();
+            renderContact();
+            renderFooter();
+        }
+        
+        document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() { setLanguage(btn.dataset.lang); });
+        });
+        
+        function renderAbout() {
+            var tabsHtml = '';
+            aboutSections.forEach(function(s) {
+                tabsHtml += '<button class="about-tab' + (currentAboutSection === s.id ? ' active' : '') + '" data-id="' + s.id + '">' + (currentLang === 'zh' ? s.name_zh : s.name_en) + '</button>';
+            });
+            document.getElementById('aboutTabs').innerHTML = tabsHtml;
+            
+            document.querySelectorAll('.about-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    currentAboutSection = this.dataset.id;
+                    renderAbout();
+                });
+            });
+            
+            var section = aboutSections.find(function(s) { return s.id === currentAboutSection; });
+            if (section && section.blocks) {
+                var html = '';
+                section.blocks.forEach(function(block) {
+                    if (block.type === 'image' && block.url) {
+                        html += '<img src="' + block.url + '" alt="" class="about-section-image">';
+                    } else if (block.type === 'text') {
+                        html += '<div class="about-section-text">' + (currentLang === 'zh' ? block.content_zh : block.content_en) + '</div>';
+                    }
+                });
+                document.getElementById('aboutContent').innerHTML = html;
+            }
+        }
+        
+        function renderDiseases() {
+            var cats = diseaseCategories;
+            if (!currentDiseaseCategory) currentDiseaseCategory = cats[0]?.id || 'mito';
+            
+            var tabsHtml = '';
+            cats.forEach(function(c) {
+                tabsHtml += '<button class="category-tab' + (currentDiseaseCategory === c.id ? ' active' : '') + '" data-id="' + c.id + '">' + (currentLang === 'zh' ? c.name_zh : c.name_en) + '</button>';
+            });
+            document.getElementById('diseaseCategoryTabs').innerHTML = tabsHtml;
+            
+            document.querySelectorAll('#diseaseCategoryTabs .category-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    currentDiseaseCategory = this.dataset.id;
+                    renderDiseases();
+                });
+            });
+            
+            var filtered = diseaseItems.filter(function(i) { return i.category === currentDiseaseCategory; });
+            var grid = document.getElementById('diseaseGrid');
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#718096;grid-column:1/-1;padding:3rem;">' + (currentLang === 'zh' ? '暂无内容' : 'No content yet') + '</p>';
+                return;
+            }
+            
+            var html = '';
+            filtered.forEach(function(item) {
+                var tags = currentLang === 'zh' ? (item.tags_zh || []) : (item.tags_en || []);
+                html += '<div class="disease-card animate-on-scroll" onclick="showDiseaseModal(\'' + item.id + '\')"><div class="disease-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 class="disease-name">' + (currentLang === 'zh' ? item.title_zh : item.title_en) + '</h3><p class="disease-name-en">' + item.title_en + '</p><p class="disease-desc">' + (currentLang === 'zh' ? item.desc_zh : item.desc_en) + '</p><div class="disease-tags">' + tags.map(function(t) { return '<span class="disease-tag">' + t + '</span>'; }).join('') + '</div></div>';
+            });
+            grid.innerHTML = html;
+            observeAnimations();
+        }
+        
+        function showDiseaseModal(id) {
+            var item = diseaseItems.find(function(i) { return i.id == id; });
+            if (!item) return;
+            document.getElementById('modalTitle').textContent = currentLang === 'zh' ? item.title_zh : item.title_en;
+            var content = currentLang === 'zh' ? item.content_zh : item.content_en;
+            if (!content || content.trim() === '') {
+                content = '<p>' + (currentLang === 'zh' ? item.desc_zh : item.desc_en) + '</p>';
+            }
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('diseaseModal').classList.add('active');
+            trackVisit('diseases');
+        }
+        
+        function renderNews() {
+            var cats = newsCategories;
+            if (!currentNewsCategory) currentNewsCategory = cats[0]?.id || 'research';
+            
+            var tabsHtml = '';
+            cats.forEach(function(c) {
+                tabsHtml += '<button class="category-tab' + (currentNewsCategory === c.id ? ' active' : '') + '" data-id="' + c.id + '">' + (currentLang === 'zh' ? c.name_zh : c.name_en) + '</button>';
+            });
+            document.getElementById('newsCategoryTabs').innerHTML = tabsHtml;
+            
+            document.querySelectorAll('#newsCategoryTabs .category-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    currentNewsCategory = this.dataset.id;
+                    renderNews();
+                });
+            });
+            
+            var filtered = newsItems.filter(function(i) { return i.category === currentNewsCategory; });
+            var grid = document.getElementById('newsGrid');
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#718096;grid-column:1/-1;padding:3rem;">' + (currentLang === 'zh' ? '暂无资讯' : 'No news yet') + '</p>';
+                return;
+            }
+            
+            var html = '';
+            filtered.forEach(function(item) {
+                var catName = '';
+                var cat = cats.find(function(c) { return c.id === item.category; });
+                if (cat) catName = currentLang === 'zh' ? cat.name_zh : cat.name_en;
+                html += '<div class="news-card animate-on-scroll" onclick="' + (item.link ? 'window.open(\'' + item.link + '\')' : 'showNewsModal(' + item.id + ')') + '"><div class="news-image">' + (item.image ? '<img src="' + item.image + '" alt="">' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>') + '</div><div class="news-content"><div class="news-meta"><span class="news-date">' + item.date + '</span><span class="news-category">' + catName + '</span></div><h3 class="news-title">' + (currentLang === 'zh' ? item.title_zh : item.title_en) + '</h3><p class="news-excerpt">' + (currentLang === 'zh' ? item.excerpt_zh : item.excerpt_en) + '</p>' + (item.link ? '<span class="news-link">' + (currentLang === 'zh' ? '阅读更多' : 'Read More') + ' →</span>' : '') + '</div></div>';
+            });
+            grid.innerHTML = html;
+            observeAnimations();
+        }
+        
+        function showNewsModal(id) {
+            var item = newsItems.find(function(i) { return i.id == id; });
+            if (!item) return;
+            document.getElementById('modalTitle').textContent = currentLang === 'zh' ? item.title_zh : item.title_en;
+            var bodyHtml = '<p style="color:#718096;margin-bottom:1rem;font-size:0.9rem;">' + item.date + '</p>';
+            if (item.image) bodyHtml += '<img src="' + item.image + '" alt="">';
+            bodyHtml += '<p>' + (currentLang === 'zh' ? item.excerpt_zh : item.excerpt_en) + '</p>';
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('diseaseModal').classList.add('active');
+            trackVisit('news');
+        }
+        
+        function renderOrgs() {
+            var filtered = currentOrgRegion === 'all' ? orgItems : orgItems.filter(function(i) { return i.region === currentOrgRegion; });
+            var grid = document.getElementById('orgGrid');
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#718096;grid-column:1/-1;padding:3rem;">' + (currentLang === 'zh' ? '暂无组织' : 'No organizations yet') + '</p>';
+                return;
+            }
+            
+            var html = '';
+            filtered.forEach(function(item) {
+                html += '<div class="org-card animate-on-scroll"><div class="org-header"><div class="org-logo">' + (item.logo ? '<img src="' + item.logo + '" alt="">' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') + '</div><div class="org-info"><h4>' + item.name + '</h4><span class="org-country">' + item.country + '</span></div></div><p class="org-desc">' + (currentLang === 'zh' ? item.desc_zh : item.desc_en) + '</p><div class="org-contact">' + (item.email ? '<div class="org-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:' + item.email + '">' + item.email + '</a></div>' : '') + (item.website ? '<div class="org-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg><a href="https://' + item.website + '" target="_blank">' + item.website + '</a></div>' : '') + '</div></div>';
+            });
+            grid.innerHTML = html;
+            observeAnimations();
+        }
+        
+        document.querySelectorAll('.org-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.org-tab').forEach(function(t) { t.classList.remove('active'); });
+                this.classList.add('active');
+                currentOrgRegion = this.dataset.region;
+                renderOrgs();
+            });
+        });
+        
+        function renderContact() {
+            var info = JSON.parse(localStorage.getItem('contactInfo') || '{}');
+            var items = info.items || [];
+            var html = '';
+            if (items.length === 0) {
+                html = '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><h4>地址</h4><p>上海市</p></div></div><div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><h4>电话</h4><p>+86 21 5888 8888</p></div></div><div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><h4>邮箱</h4><p>contact@mitochondrial.cn</p></div></div>';
+            } else {
+                items.forEach(function(item) {
+                    var icon = '';
+                    if (item.type === 'address') icon = '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>';
+                    else if (item.type === 'phone') icon = '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>';
+                    else if (item.type === 'email') icon = '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>';
+                    else icon = '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/>';
+                    html += '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icon + '</svg></div><div><h4>' + (currentLang === 'zh' ? item.label_zh : item.label_en) + '</h4><p>' + item.value + '</p></div></div>';
+                });
+            }
+            document.getElementById('contactInfo').innerHTML = html;
+        }
+        
+        function renderFooter() {
+            var settings = JSON.parse(localStorage.getItem('footerSettings') || '{}');
+            var orgName = settings.orgName || '线粒体家庭联盟';
+            var desc = currentLang === 'zh' ? (settings.desc_zh || '线粒体家庭联盟致力于为线粒体罕见病患者、研究人员和家庭提供权威信息与全球资源连接平台。') : (settings.desc_en || 'The Mitochondrial Disease Family Alliance provides authoritative information and global resources.');
+            var social = settings.social || {};
+            var legal = settings.legal || {};
+            var copyright = settings.copyright || {year: '2026', org: '线粒体家庭联盟'};
+            
+            var socialHtml = '';
+            var socialNames = {wechat: '微信', weibo: '微博', email: '邮箱', youtube: 'YouTube', douyin: '抖音'};
+            
+            var socialItems = [
+                {key: 'wechat', icon: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'},
+                {key: 'weibo', icon: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>'},
+                {key: 'email', icon: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'},
+                {key: 'youtube', icon: '<path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>'},
+                {key: 'douyin', icon: '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>'}
+            ];
+            
+            socialItems.forEach(function(s) {
+                if (social[s.key] && social[s.key].url) {
+                    var url = social[s.key].url || '#';
+                    var qr = social[s.key].qrCode || '';
+                    var tooltip = '';
+                    if (qr) {
+                        tooltip = '<span class="qr-tooltip"><img src="' + qr + '" alt="' + socialNames[s.key] + '"></span>';
+                    }
+                    socialHtml += '<a href="' + url + '" target="_blank" aria-label="' + socialNames[s.key] + '" title="' + socialNames[s.key] + '链接">' + tooltip + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + s.icon + '</svg></a>';
+                }
+            });
+            
+            document.getElementById('footer').innerHTML = '<div class="footer-grid"><div class="footer-brand"><div class="footer-logo"><img src="imgs/logo.jpg" alt="" onerror="this.style.display=\'none\'"><span>' + orgName + '</span></div><p class="footer-desc">' + desc + '</p><div class="footer-social">' + socialHtml + '</div></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '快速链接' : 'Quick Links') + '</h4><ul class="footer-links"><li><a href="#about">' + (currentLang === 'zh' ? '关于我们' : 'About Us') + '</a></li><li><a href="#diseases">' + (currentLang === 'zh' ? '疾病科普' : 'Disease Info') + '</a></li><li><a href="#news">' + (currentLang === 'zh' ? '最新资讯' : 'News') + '</a></li><li><a href="#organizations">' + (currentLang === 'zh' ? '全球组织' : 'Organizations') + '</a></li></ul></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '参与支持' : 'Get Involved') + '</h4><ul class="footer-links"><li><a href="#contact">' + (currentLang === 'zh' ? '成为志愿者' : 'Volunteer') + '</a></li><li><a href="#contact">' + (currentLang === 'zh' ? '捐款支持' : 'Donate') + '</a></li><li><a href="#contact">' + (currentLang === 'zh' ? '联系我们' : 'Contact') + '</a></li></ul></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '法律信息' : 'Legal') + '</h4><ul class="footer-links">' + (legal.privacy ? '<li><a href="' + legal.privacy + '">' + (currentLang === 'zh' ? '隐私政策' : 'Privacy Policy') + '</a></li>' : '') + (legal.terms ? '<li><a href="' + legal.terms + '">' + (currentLang === 'zh' ? '使用条款' : 'Terms of Use') + '</a></li>' : '') + (legal.cookie ? '<li><a href="' + legal.cookie + '">' + (currentLang === 'zh' ? 'Cookie政策' : 'Cookie Policy') + '</a></li>' : '') + (legal.beian ? '<li><a href="' + legal.beian + '" target="_blank">' + (currentLang === 'zh' ? '备案信息' : 'ICP Filing') + '</a></li>' : '') + '</ul></div></div><div class="footer-bottom"><p>© ' + copyright.year + ' ' + copyright.org + '. ' + (currentLang === 'zh' ? '保留所有权利' : 'All Rights Reserved') + '.</p></div>';
+        }
+        
+        var observerOptions = {threshold: 0.1, rootMargin: '0px 0px -30px 0px'};
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, observerOptions);
+        
+        function observeAnimations() {
+            document.querySelectorAll('.animate-on-scroll').forEach(function(el) {
+                observer.observe(el);
+            });
+        }
+        
+        document.getElementById('modalClose').addEventListener('click', function() {
+            document.getElementById('diseaseModal').classList.remove('active');
+        });
+        document.getElementById('diseaseModal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+        
+        window.addEventListener('scroll', function() {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+        
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('mobileMenu').classList.toggle('active');
+        });
+        document.querySelectorAll('#mobileMenu a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.getElementById('mobileMenu').classList.remove('active');
+            });
+        });
+        
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var formData = new FormData(e.target);
+            var contact = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                type: formData.get('type'),
+                message: formData.get('message')
+            };
+            
+            // 发送到 API
+            await apiPost('/contacts', contact);
+            trackVisit('contact');
+            
+            alert(currentLang === 'zh' ? '感谢您的留言！我们会尽快与您联系。' : 'Thank you for your message! We will contact you soon.');
+            e.target.reset();
+        });
+        
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({behavior: 'smooth', block: 'start'});
+            });
+        });
+        
+        // ========== 访问统计模块 ==========
+        
+        async function trackVisit(sectionId) {
+            var now = Date.now();
+            var sessionKey = 'visited_' + sectionId;
+            
+            if (!sessionStorage.getItem(sessionKey)) {
+                sessionStorage.setItem(sessionKey, 'true');
+                // 发送到 API - 简化为只记录主页访问
+                await apiPost('/stats', {});
+            }
+            
+            sessionStorage.setItem('visited_' + sectionId + '_time', now);
+            if (!sessionStorage.getItem('visited_total')) {
+                sessionStorage.setItem('visited_total', 'true');
+            }
+        }
+        
+        // 监听滚动，自动记录访问的板块
+        var visitObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var sectionId = entry.target.id;
+                    if (sectionId && ['home', 'about', 'diseases', 'news', 'organizations', 'contact'].indexOf(sectionId) >= 0) {
+                        trackVisit(sectionId);
+                    }
+                }
+            });
+        }, {threshold: 0.3});
+        
+        // 为所有section添加观察
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('section[id]').forEach(function(section) {
+                visitObserver.observe(section);
+            });
+        });
+        
+        // 页面初始化 - 从API加载数据
+        initData();
+    </script>
+</body>
+</html>

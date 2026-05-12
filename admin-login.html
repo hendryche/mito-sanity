@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>线粒体家庭联盟 - 管理登录</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+            margin: 1rem;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-logo img {
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+        .login-logo h1 {
+            font-size: 1.5rem;
+            color: #6B5CE7;
+        }
+        .login-logo p {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #2D3748;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #6B5CE7;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #6B5CE7 0%, #00B4D8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(107, 92, 231, 0.3);
+        }
+        .error-msg {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .back-link a {
+            color: #6B5CE7;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="imgs/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+            <h1>管理后台</h1>
+            <p>Mitochondrial Disease Family Alliance</p>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>管理员账号</label>
+                <input type="text" id="username" placeholder="请输入账号" required>
+            </div>
+            <div class="form-group">
+                <label>登录密码</label>
+                <input type="password" id="password" placeholder="请输入密码" required>
+            </div>
+            <p class="error-msg" id="errorMsg">账号或密码错误</p>
+            <button type="submit" class="login-btn">登 录</button>
+        </form>
+        <div class="back-link">
+            <a href="index.html">返回网站首页</a>
+        </div>
+    </div>
+    <script>
+        var defaultSettings = {
+            adminUser: 'admin',
+            adminPass: 'admin123'
+        };
+        if (!localStorage.getItem('siteSettings')) {
+            localStorage.setItem('siteSettings', JSON.stringify(defaultSettings));
+        }
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var settings = JSON.parse(localStorage.getItem('siteSettings'));
+            var user = document.getElementById('username').value;
+            var pass = document.getElementById('password').value;
+            if (user === settings.adminUser && pass === settings.adminPass) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                window.location.href = 'admin.html';
+            } else {
+                document.getElementById('errorMsg').classList.add('show');
+            }
+        });
+    </script>
+</body>
+</html>

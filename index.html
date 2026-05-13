@@ -796,6 +796,7 @@
         var newsCategories = [];
         var newsItems = [];
         var orgItems = [];
+        var siteSettings = {};
         
         // 初始化 - 从Sanity加载数据
         async function initData() {
@@ -807,14 +808,16 @@
                     sanityDiseaseItems,
                     sanityNewsCats,
                     sanityNewsItems,
-                    sanityOrgs
+                    sanityOrgs,
+                    sanitySettings
                 ] = await Promise.all([
                     SanityData.getAboutSections(),
                     SanityData.getDiseaseCategories(),
                     SanityData.getDiseaseItems(),
                     SanityData.getNewsCategories(),
                     SanityData.getNewsItems(),
-                    SanityData.getOrganizations()
+                    SanityData.getOrganizations(),
+                    SanityData.getSiteSettings()
                 ]);
                 
                 // 如果Sanity有数据，使用Sanity数据
@@ -892,6 +895,23 @@
                         website: o.website,
                         logo: o.logo
                     }));
+                }
+                
+                // 加载网站设置
+                if (sanitySettings) {
+                    siteSettings = {
+                        orgName: sanitySettings.orgName || '线粒体家庭联盟',
+                        orgNameEn: sanitySettings.orgNameEn || 'Mitochondrial Disease Family Alliance',
+                        logo: sanitySettings.logo || '',
+                        descriptionZh: sanitySettings.descriptionZh || '',
+                        descriptionEn: sanitySettings.descriptionEn || '',
+                        email: sanitySettings.email || '',
+                        phone: sanitySettings.phone || '',
+                        addressZh: sanitySettings.addressZh || '',
+                        addressEn: sanitySettings.addressEn || '',
+                        socialLinks: sanitySettings.socialLinks || [],
+                        footerLinks: sanitySettings.footerLinks || {}
+                    };
                 }
             } catch(e) {
                 console.warn('Sanity加载失败，使用默认数据:', e.message);
@@ -1236,56 +1256,54 @@
         });
         
         function renderContact() {
-            var info = JSON.parse(localStorage.getItem('contactInfo') || '{}');
-            var items = info.items || [];
             var html = '';
-            if (items.length === 0) {
-                html = '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><h4>地址</h4><p>上海市</p></div></div><div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><h4>电话</h4><p>+86 21 5888 8888</p></div></div><div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><h4>邮箱</h4><p>contact@mitochondrial.cn</p></div></div>';
+            // 使用Sanity网站设置
+            if (siteSettings.email || siteSettings.phone || siteSettings.addressZh) {
+                if (siteSettings.addressZh) {
+                    html += '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><h4>' + (currentLang === 'zh' ? '地址' : 'Address') + '</h4><p>' + (currentLang === 'zh' ? siteSettings.addressZh : (siteSettings.addressEn || siteSettings.addressZh)) + '</p></div></div>';
+                }
+                if (siteSettings.phone) {
+                    html += '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><h4>' + (currentLang === 'zh' ? '电话' : 'Phone') + '</h4><p>' + siteSettings.phone + '</p></div></div>';
+                }
+                if (siteSettings.email) {
+                    html += '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><h4>' + (currentLang === 'zh' ? '邮箱' : 'Email') + '</h4><p><a href="mailto:' + siteSettings.email + '">' + siteSettings.email + '</a></p></div></div>';
+                }
             } else {
-                items.forEach(function(item) {
-                    var icon = '';
-                    if (item.type === 'address') icon = '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>';
-                    else if (item.type === 'phone') icon = '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>';
-                    else if (item.type === 'email') icon = '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>';
-                    else icon = '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/>';
-                    html += '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icon + '</svg></div><div><h4>' + (currentLang === 'zh' ? item.label_zh : item.label_en) + '</h4><p>' + item.value + '</p></div></div>';
-                });
+                // 默认显示
+                html = '<div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><h4>' + (currentLang === 'zh' ? '地址' : 'Address') + '</h4><p>' + (currentLang === 'zh' ? '上海市' : 'Shanghai') + '</p></div></div><div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><h4>' + (currentLang === 'zh' ? '电话' : 'Phone') + '</h4><p>+86 21 5888 8888</p></div></div><div class="contact-info-item"><div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><h4>' + (currentLang === 'zh' ? '邮箱' : 'Email') + '</h4><p>contact@mito.cn</p></div></div>';
             }
             document.getElementById('contactInfo').innerHTML = html;
         }
         
         function renderFooter() {
-            var settings = JSON.parse(localStorage.getItem('footerSettings') || '{}');
-            var orgName = settings.orgName || '线粒体家庭联盟';
-            var desc = currentLang === 'zh' ? (settings.desc_zh || '线粒体家庭联盟致力于为线粒体罕见病患者、研究人员和家庭提供权威信息与全球资源连接平台。') : (settings.desc_en || 'The Mitochondrial Disease Family Alliance provides authoritative information and global resources.');
-            var social = settings.social || {};
-            var legal = settings.legal || {};
-            var copyright = settings.copyright || {year: '2026', org: '线粒体家庭联盟'};
+            // 使用Sanity网站设置
+            var orgName = siteSettings.orgName || '线粒体家庭联盟';
+            var desc = currentLang === 'zh' 
+                ? (siteSettings.descriptionZh || '线粒体家庭联盟致力于为线粒体罕见病患者、研究人员和家庭提供权威信息与全球资源连接平台。')
+                : (siteSettings.descriptionEn || 'The Mitochondrial Disease Family Alliance provides authoritative information and global resources.');
             
+            // 社交链接
             var socialHtml = '';
-            var socialNames = {wechat: '微信', weibo: '微博', email: '邮箱', youtube: 'YouTube', douyin: '抖音'};
+            var socialIcons = {
+                wechat: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+                weibo: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>',
+                email: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+                youtube: '<path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>',
+                website: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/>'
+            };
             
-            var socialItems = [
-                {key: 'wechat', icon: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'},
-                {key: 'weibo', icon: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>'},
-                {key: 'email', icon: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'},
-                {key: 'youtube', icon: '<path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>'},
-                {key: 'douyin', icon: '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>'}
-            ];
+            if (siteSettings.socialLinks && siteSettings.socialLinks.length > 0) {
+                siteSettings.socialLinks.forEach(function(link) {
+                    var icon = socialIcons[link.platform] || socialIcons.website;
+                    socialHtml += '<a href="' + link.url + '" target="_blank" aria-label="' + link.platform + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + icon + '</svg></a>';
+                });
+            }
             
-            socialItems.forEach(function(s) {
-                if (social[s.key] && social[s.key].url) {
-                    var url = social[s.key].url || '#';
-                    var qr = social[s.key].qrCode || '';
-                    var tooltip = '';
-                    if (qr) {
-                        tooltip = '<span class="qr-tooltip"><img src="' + qr + '" alt="' + socialNames[s.key] + '"></span>';
-                    }
-                    socialHtml += '<a href="' + url + '" target="_blank" aria-label="' + socialNames[s.key] + '" title="' + socialNames[s.key] + '链接">' + tooltip + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + s.icon + '</svg></a>';
-                }
-            });
+            // 底部链接
+            var legal = siteSettings.footerLinks || {};
+            var copyright = {year: '2026', org: orgName};
             
-            document.getElementById('footer').innerHTML = '<div class="footer-grid"><div class="footer-brand"><div class="footer-logo"><img src="imgs/logo.jpg" alt="" onerror="this.style.display=\'none\'"><span>' + orgName + '</span></div><p class="footer-desc">' + desc + '</p><div class="footer-social">' + socialHtml + '</div></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '快速链接' : 'Quick Links') + '</h4><ul class="footer-links"><li><a href="#about">' + (currentLang === 'zh' ? '关于我们' : 'About Us') + '</a></li><li><a href="#diseases">' + (currentLang === 'zh' ? '疾病科普' : 'Disease Info') + '</a></li><li><a href="#news">' + (currentLang === 'zh' ? '最新资讯' : 'News') + '</a></li><li><a href="#organizations">' + (currentLang === 'zh' ? '全球组织' : 'Organizations') + '</a></li></ul></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '参与支持' : 'Get Involved') + '</h4><ul class="footer-links"><li><a href="#contact">' + (currentLang === 'zh' ? '成为志愿者' : 'Volunteer') + '</a></li><li><a href="#contact">' + (currentLang === 'zh' ? '捐款支持' : 'Donate') + '</a></li><li><a href="#contact">' + (currentLang === 'zh' ? '联系我们' : 'Contact') + '</a></li></ul></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '法律信息' : 'Legal') + '</h4><ul class="footer-links">' + (legal.privacy ? '<li><a href="' + legal.privacy + '">' + (currentLang === 'zh' ? '隐私政策' : 'Privacy Policy') + '</a></li>' : '') + (legal.terms ? '<li><a href="' + legal.terms + '">' + (currentLang === 'zh' ? '使用条款' : 'Terms of Use') + '</a></li>' : '') + (legal.cookie ? '<li><a href="' + legal.cookie + '">' + (currentLang === 'zh' ? 'Cookie政策' : 'Cookie Policy') + '</a></li>' : '') + (legal.beian ? '<li><a href="' + legal.beian + '" target="_blank">' + (currentLang === 'zh' ? '备案信息' : 'ICP Filing') + '</a></li>' : '') + '</ul></div></div><div class="footer-bottom"><p>© ' + copyright.year + ' ' + copyright.org + '. ' + (currentLang === 'zh' ? '保留所有权利' : 'All Rights Reserved') + '.</p></div>';
+            document.getElementById('footer').innerHTML = '<div class="footer-grid"><div class="footer-brand"><div class="footer-logo"><img src="' + (siteSettings.logo || 'imgs/logo.jpg') + '" alt="" onerror="this.style.display=\'none\'"><span>' + orgName + '</span></div><p class="footer-desc">' + desc + '</p><div class="footer-social">' + socialHtml + '</div></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '快速链接' : 'Quick Links') + '</h4><ul class="footer-links"><li><a href="#about">' + (currentLang === 'zh' ? '关于我们' : 'About Us') + '</a></li><li><a href="#diseases">' + (currentLang === 'zh' ? '疾病科普' : 'Disease Info') + '</a></li><li><a href="#news">' + (currentLang === 'zh' ? '最新资讯' : 'News') + '</a></li><li><a href="#organizations">' + (currentLang === 'zh' ? '全球组织' : 'Organizations') + '</a></li></ul></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '参与支持' : 'Get Involved') + '</h4><ul class="footer-links"><li><a href="#contact">' + (currentLang === 'zh' ? '成为志愿者' : 'Volunteer') + '</a></li><li><a href="#contact">' + (currentLang === 'zh' ? '捐款支持' : 'Donate') + '</a></li><li><a href="#contact">' + (currentLang === 'zh' ? '联系我们' : 'Contact') + '</a></li></ul></div><div class="footer-column"><h4>' + (currentLang === 'zh' ? '法律信息' : 'Legal') + '</h4><ul class="footer-links">' + (legal.privacy ? '<li><a href="' + legal.privacy + '">' + (currentLang === 'zh' ? '隐私政策' : 'Privacy Policy') + '</a></li>' : '') + (legal.terms ? '<li><a href="' + legal.terms + '">' + (currentLang === 'zh' ? '使用条款' : 'Terms of Use') + '</a></li>' : '') + (legal.beian ? '<li><a href="' + legal.beian + '" target="_blank">' + (currentLang === 'zh' ? '备案信息' : 'ICP Filing') + '</a></li>' : '') + '</ul></div></div><div class="footer-bottom"><p>© ' + copyright.year + ' ' + copyright.org + '. ' + (currentLang === 'zh' ? '保留所有权利' : 'All Rights Reserved') + '.</p></div>';
         }
         
         var observerOptions = {threshold: 0.1, rootMargin: '0px 0px -30px 0px'};

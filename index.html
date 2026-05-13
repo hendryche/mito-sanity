@@ -625,7 +625,7 @@
         </ul>
     </div>
     <section class="hero" id="home">
-        <div class="hero-content">
+        <div class="hero-content" id="heroContent">
             <h1 class="hero-title" data-zh="生命的能量，永不熄灭" data-en="The Energy of Life, Never Fades">生命的能量，永不熄灭</h1>
             <p class="hero-subtitle" data-zh="为线粒体罕见病患者，家属和研究人员提供权威信息与全球资源连接平台" data-en="Connecting patients, families and researchers with global resources for mitochondrial diseases">为线粒体罕见病患者，家属和研究人员提供权威信息与全球资源连接平台</p>
             <div class="hero-buttons">
@@ -903,6 +903,7 @@
                         orgName: sanitySettings.orgName || '线粒体家庭联盟',
                         orgNameEn: sanitySettings.orgNameEn || 'Mitochondrial Disease Family Alliance',
                         logo: sanitySettings.logo || '',
+                        hero: sanitySettings.hero || {},
                         descriptionZh: sanitySettings.descriptionZh || '',
                         descriptionEn: sanitySettings.descriptionEn || '',
                         email: sanitySettings.email || '',
@@ -930,6 +931,7 @@
             if (!currentNewsCategory) currentNewsCategory = newsCategories[0]?.id || 'research';
             
             // 初始化渲染
+            renderHero();
             renderAbout();
             renderDiseases();
             renderNews();
@@ -1094,12 +1096,38 @@
             document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
+            renderHero();
             renderAbout();
             renderDiseases();
             renderNews();
             renderOrgs();
             renderContact();
             renderFooter();
+        }
+        
+        function renderHero() {
+            var hero = siteSettings.hero || {};
+            var titleEl = document.querySelector('#heroContent .hero-title');
+            var subtitleEl = document.querySelector('#heroContent .hero-subtitle');
+            var btn1El = document.querySelector('#heroContent .btn-primary');
+            var btn2El = document.querySelector('#heroContent .btn-secondary');
+            
+            if (titleEl) {
+                var title = currentLang === 'zh' ? (hero.titleZh || titleEl.getAttribute('data-zh')) : (hero.titleEn || titleEl.getAttribute('data-en'));
+                titleEl.textContent = title;
+            }
+            if (subtitleEl) {
+                var subtitle = currentLang === 'zh' ? (hero.subtitleZh || subtitleEl.getAttribute('data-zh')) : (hero.subtitleEn || subtitleEl.getAttribute('data-en'));
+                subtitleEl.textContent = subtitle;
+            }
+            if (btn1El) {
+                var btn1Text = currentLang === 'zh' ? (hero.btnTextZh || btn1El.getAttribute('data-zh')) : (hero.btnTextEn || btn1El.getAttribute('data-en'));
+                btn1El.textContent = btn1Text;
+            }
+            if (btn2El) {
+                var btn2Text = currentLang === 'zh' ? (hero.btnText2Zh || btn2El.getAttribute('data-zh')) : (hero.btnText2En || btn2El.getAttribute('data-en'));
+                btn2El.textContent = btn2Text;
+            }
         }
         
         document.querySelectorAll('.nav-lang-btn').forEach(function(btn) {

@@ -171,6 +171,7 @@ var SanityData = {
                 "orgName": orgName,
                 "orgNameEn": orgNameEn,
                 "logo": logo,
+                "hero": hero,
                 "descriptionZh": descriptionZh,
                 "descriptionEn": descriptionEn,
                 "email": email,

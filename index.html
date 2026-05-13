@@ -1350,12 +1350,15 @@
                 message: formData.get('message')
             };
             
-            // 发送到 API
-            await apiPost('/contacts', contact);
+            // 发送到 Sanity
+            var result = await SanityData.submitContact(contact);
+            if (result && result.success) {
+                alert(currentLang === 'zh' ? '感谢您的留言！我们会尽快与您联系。' : 'Thank you for your message! We will contact you soon.');
+                e.target.reset();
+            } else {
+                alert(currentLang === 'zh' ? '提交失败，请稍后重试。' : 'Submission failed, please try again later.');
+            }
             trackVisit('contact');
-            
-            alert(currentLang === 'zh' ? '感谢您的留言！我们会尽快与您联系。' : 'Thank you for your message! We will contact you soon.');
-            e.target.reset();
         });
         
         document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {

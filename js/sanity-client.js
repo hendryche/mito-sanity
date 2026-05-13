@@ -8,8 +8,11 @@
 var SANITY_CONFIG = {
     projectId: '2bbut6z3',
     dataset: 'mito',
-    token: 'skggFHan06bWSdJEK1VcBxb4QXCC1g4Pdpu4QyrBAdJJ1lbAqgXKXPpXBIXs2SCrQvRzqJ11mABYNFlak11em95XZCsBYb2hCuhGNOoBMeU03VIhqcscbpPFly2zSPWHEQb8t9fgBmcLDsyEMFMG156ZS6uv4yOpHkeoRoihNHME5TikkhUv',
     apiVersion: '2024-01-01',
+    // 只读Token（用于读取数据）
+    readToken: 'skggFHan06bWSdJEK1VcBxb4QXCC1g4Pdpu4QyrBAdJJ1lbAqgXKXPpXBIXs2SCrQvRzqJ11mABYNFlak11em95XZCsBYb2hCuhGNOoBMeU03VIhqcscbpPFly2zSPWHEQb8t9fgBmcLDsyEMFMG156ZS6uv4yOpHkeoRoihNHME5TikkhUv',
+    // 写入Token（用于提交留言）
+    writeToken: 'ska3BsBbWKB2OOdstJs1aTvhDAdY0Aq1ARBL9mDNfnAev1YyfeiGR8ccDNwiPik4ZwGRdjeLYVsBhnmCh9IYKsgdshxRWhlj7u34MiUW7uvmFxBbnDefX9DPNXB6V9ouCJNU3VUGfgQ8d9uhlGoSXzWBUevzdunf8sPUKS2wKZIfXX7xARZh',
     useCdn: true
 };
 
@@ -25,16 +28,12 @@ async function sanityGet(query, fallback = []) {
         const url = buildQueryUrl(query);
         const response = await fetch(url);
         
-        // 检查HTTP状态
         if (!response.ok) {
-            const errorText = await response.text();
-            console.warn('Sanity API错误:', response.status, errorText);
+            console.warn('Sanity API错误:', response.status);
             return fallback;
         }
         
         const data = await response.json();
-        
-        // 检查Sanity返回的错误
         if (data.error) {
             console.warn('Sanity查询错误:', data.error);
             return fallback;
@@ -42,8 +41,36 @@ async function sanityGet(query, fallback = []) {
         
         return data.result || fallback;
     } catch (e) {
-        console.warn('Sanity获取失败，使用默认数据:', e.message);
+        console.warn('Sanity获取失败:', e.message);
         return fallback;
+    }
+}
+
+// 提交数据到 Sanity (使用 Mutations API)
+async function sanityMutate(mutations) {
+    try {
+        const url = `https://${SANITY_CONFIG.projectId}.api.sanity.io/v${SANITY_CONFIG.apiVersion}/data/mutate/${SANITY_CONFIG.dataset}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SANITY_CONFIG.writeToken}`
+            },
+            body: JSON.stringify({ mutations })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.warn('Sanity提交错误:', response.status, errorText);
+            return { success: false, error: errorText };
+        }
+        
+        const data = await response.json();
+        return { success: true, data };
+    } catch (e) {
+        console.warn('Sanity提交失败:', e.message);
+        return { success: false, error: e.message };
     }
 }
 
@@ -150,14 +177,35 @@ var SanityData = {
                 "phone": phone,
                 "addressZh": addressZh,
                 "addressEn": addressEn,
+                "website": website,
                 "socialLinks": socialLinks,
+                "contactItems": contactItems,
                 "footerLinks": footerLinks
             }
         `, {
             orgName: '线粒体家庭联盟',
             orgNameEn: 'Mitochondrial Disease Family Alliance',
             socialLinks: [],
+            contactItems: [],
             footerLinks: {}
         });
+    },
+    
+    // 提交留言
+    async submitContact(contactData) {
+        const mutation = {
+            create: {
+                _type: 'contact',
+                name: contactData.name,
+                email: contactData.email,
+                phone: contactData.phone || '',
+                type: contactData.type || 'general',
+                message: contactData.message,
+                isRead: false,
+                createdAt: new Date().toISOString()
+            }
+        };
+        
+        return await sanityMutate([mutation]);
     }
 };

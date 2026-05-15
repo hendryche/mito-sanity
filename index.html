@@ -218,10 +218,16 @@
         .about-section-block { margin-bottom: 2rem; }
         .about-section-image { width: 100%; border-radius: 16px; margin-bottom: 1.5rem; box-shadow: var(--shadow-md); }
         .about-section-text { line-height: 1.9; font-size: 1.05rem; color: var(--text-secondary); }
-        .about-section-text h3 { font-size: 1.5rem; color: var(--primary); margin-bottom: 1rem; }
+        .about-section-text h1, .about-section-text h2, .about-section-text h3, .about-section-text h4, .about-section-text h5, .about-section-text h6 { font-size: 1.5rem; color: var(--primary); margin: 1.5rem 0 1rem; }
+        .about-section-text h1 { font-size: 2rem; }
+        .about-section-text h2 { font-size: 1.75rem; }
+        .about-section-text h3 { font-size: 1.5rem; }
+        .about-section-text h4 { font-size: 1.25rem; }
         .about-section-text p { margin-bottom: 1rem; }
-        .about-section-text ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+        .about-section-text ul, .about-section-text ol { padding-left: 1.5rem; margin-bottom: 1rem; }
         .about-section-text li { margin-bottom: 0.5rem; }
+        .about-section-text blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: var(--text-secondary); }
+        .about-section-text code { background: rgba(107, 92, 231, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
         .diseases { background: var(--background); }
         .category-tabs {
             display: flex;
@@ -835,8 +841,8 @@
                         image: s.image || '',
                         blocks: [{
                             type: 'text',
-                            content_zh: s.contentZh ? s.contentZh.map(b => b.children?.[0]?.text || '').join('') : '',
-                            content_en: s.contentEn ? s.contentEn.map(b => b.children?.[0]?.text || '').join('') : ''
+                            content_zh: s.contentZh || [], // 保留Portable Text数组
+                            content_en: s.contentEn || []
                         }]
                     }));
                 }
@@ -1160,11 +1166,53 @@
                     if (block.type === 'image' && block.url) {
                         html += '<img src="' + block.url + '" alt="" class="about-section-image">';
                     } else if (block.type === 'text') {
-                        html += '<div class="about-section-text">' + (currentLang === 'zh' ? block.content_zh : block.content_en) + '</div>';
+                        var portableText = currentLang === 'zh' ? block.content_zh : block.content_en;
+                        html += '<div class="about-section-text">' + renderPortableText(portableText) + '</div>';
                     }
                 });
                 document.getElementById('aboutContent').innerHTML = html;
             }
+        }
+        
+        // Portable Text 解析函数
+        function renderPortableText(blocks) {
+            if (!blocks || !Array.isArray(blocks)) return '';
+            
+            var html = '';
+            blocks.forEach(function(block) {
+                if (!block._type || block._type !== 'block') return;
+                
+                var tag = 'p';
+                var style = block.style;
+                if (style === 'h1') tag = 'h1';
+                else if (style === 'h2') tag = 'h2';
+                else if (style === 'h3') tag = 'h3';
+                else if (style === 'h4') tag = 'h4';
+                else if (style === 'h5') tag = 'h5';
+                else if (style === 'h6') tag = 'h6';
+                else if (style === 'blockquote') tag = 'blockquote';
+                
+                var innerHtml = '';
+                if (block.children) {
+                    block.children.forEach(function(child) {
+                        if (child._type === 'span') {
+                            var text = child.text || '';
+                            var span = text;
+                            if (child.marks) {
+                                child.marks.forEach(function(mark) {
+                                    if (mark === 'strong') span = '<strong>' + span + '</strong>';
+                                    else if (mark === 'em') span = '<em>' + span + '</em>';
+                                    else if (mark === 'underline') span = '<span style="text-decoration:underline">' + span + '</span>';
+                                    else if (mark === 'code') span = '<code>' + span + '</code>';
+                                });
+                            }
+                            innerHtml += span;
+                        }
+                    });
+                }
+                html += '<' + tag + '>' + innerHtml + '</' + tag + '>';
+            });
+            return html;
         }
         
         function renderDiseases() {

@@ -1160,16 +1160,21 @@
             });
             
             var section = aboutSections.find(function(s) { return s.id === currentAboutSection; });
-            if (section && section.blocks) {
+            if (section) {
                 var html = '';
-                section.blocks.forEach(function(block) {
-                    if (block.type === 'image' && block.url) {
-                        html += '<img src="' + block.url + '" alt="" class="about-section-image">';
-                    } else if (block.type === 'text') {
-                        var portableText = currentLang === 'zh' ? block.content_zh : block.content_en;
-                        html += '<div class="about-section-text">' + renderPortableText(portableText) + '</div>';
-                    }
-                });
+                // 如果有图片，先显示图片
+                if (section.image) {
+                    html += '<img src="' + section.image + '" alt="" class="about-section-image">';
+                }
+                // 显示文本内容
+                if (section.blocks) {
+                    section.blocks.forEach(function(block) {
+                        if (block.type === 'text') {
+                            var portableText = currentLang === 'zh' ? block.content_zh : block.content_en;
+                            html += '<div class="about-section-text">' + renderPortableText(portableText) + '</div>';
+                        }
+                    });
+                }
                 document.getElementById('aboutContent').innerHTML = html;
             }
         }
